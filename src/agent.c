@@ -8,15 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
+#include "api.h"
 
 #define DEBUG 0
-
-// Target API
-extern void initialize(void);
-extern char getDebugChar(void);
-extern void putDebugChar(char);
-extern void continueExecution(void*);
-extern void enableCtrlC(void);
 
 /************************************************************************/
 /* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/
