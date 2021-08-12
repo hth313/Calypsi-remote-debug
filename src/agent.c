@@ -24,12 +24,12 @@
 #include <intrinsics6502.h>
 
 typedef struct {
-  uint32_t pc;
-  uint16_t a;
-  uint16_t x;
-  uint16_t y;
-  uint16_t sp;
-  uint8_t sr;
+  uint16_t pc;
+  uint8_t  a;
+  uint8_t  x;
+  uint8_t  y;
+  uint8_t  sp;
+  uint8_t  sr;
 } register_t;
 
 // Breakpoint address type */
