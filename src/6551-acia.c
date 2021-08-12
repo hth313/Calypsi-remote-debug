@@ -16,7 +16,7 @@ extern void* break_handler;
 #define BREAK_VECTOR (*(void**)0x316)
 
 static void *origBreakVector;
-static void *origIRQVector;
+void *origIRQVector;
 
 void initialize(void)
 {
