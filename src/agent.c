@@ -58,6 +58,8 @@ typedef struct {
 typedef __far void * address_t;
 typedef uint8_t backing_t;
 
+#define BREAK_OPCODE 0
+
 #endif // __CALYPSI_TARGET_65816__
 
 static const char hexchars[]="0123456789abcdef";
