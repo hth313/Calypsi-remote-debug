@@ -4,7 +4,7 @@
     (memory RAM (address (#xb000 . #xbfff))
             (section cstack data zdata heap))
     (memory ZPAGE (address (#x00 . #xff))
-            (section (registers (#x0 . #xff))))
+            (section (registers (#xca . #xff))))
     (memory STACK (address (#x100 . #x1ff))
             (section (stack (#x100 . #x1ff))))
     (block cstack (size #x800))
