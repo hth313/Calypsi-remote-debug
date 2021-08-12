@@ -20,6 +20,26 @@
 /* BREAKPOINTS defines the maximum number of software (code modifying breakpoints */
 #define BREAKPOINTS 25
 
+#ifdef __CALYPSI_TARGET_6502__
+#include <intrinsics6502.h>
+
+typedef struct {
+  uint32_t pc;
+  uint16_t a;
+  uint16_t x;
+  uint16_t y;
+  uint16_t sp;
+  uint8_t sr;
+} register_t;
+
+// Breakpoint address type */
+typedef void * address_t;
+typedef uint8_t backing_t;
+
+#define BREAK_OPCODE 0
+
+#endif // __CALYPSI_TARGET_6502__
+
 #ifdef __CALYPSI_TARGET_65816__
 #include <intrinsics65816.h>
 
