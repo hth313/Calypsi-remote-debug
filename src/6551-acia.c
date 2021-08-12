@@ -20,7 +20,7 @@ void *origIRQVector;
 
 void initialize(void)
 {
-  __interrupt_state_t st = __get_interrupt_state();
+  // Debugger agent runs with interrupts disabled.
   __disable_interrupts();
 
   // Preserve original vectors
@@ -34,9 +34,7 @@ void initialize(void)
   BREAK_VECTOR = break_handler;
 
   ACIA_CONTROL = 0x1f;   // baud rate generator, 8n1, 19200
-  ACIA_COMMAND = 0;      // no interrupts, no parity
-
-  __restore_interrupt_state(st);
+  ACIA_COMMAND = 2;      // enable Ctrl-C interrupts
 }
 
 char getDebugChar(void)
@@ -51,10 +49,4 @@ void putDebugChar(char c)
   while ((ACIA_STATUS & 0x10) != 0)
     ;
   ACIA_DATA = c;
-}
-
-void enableCtrlC(void)
-{
-  // Enable interrupt when receiving data
-  ACIA_COMMAND = 2;
 }

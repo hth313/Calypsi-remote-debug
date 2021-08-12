@@ -24,27 +24,28 @@ extern void *uart_interrupt;
 
 #define LSR_XMIT_EMPTY 0x20     // Empty transmit holding register
 
-#define VEC_INT14_CO1M *(__far void*) 0x001730              // interrupt vector COM1
+#define VEC_INT14_COM1 *(__far void**) 0x001730              // interrupt vector COM1
 
 static __far void *origVector;
 
 void initialize(void)
 {
-  __interrupt_state_t st = __get_interrupt_state();
+  // Debugger agent runs with interrupts disabled.
   __disable_interrupts();
 
   // Preserve original UART1 interrupt vector
-  origVector = VEC_INT14_CO1M;
+  origVector = VEC_INT14_COM1;
 
   // Set our own interrupt handler. This is used to handle Ctrl-C
-  VEC_INT14_CO1M = uart_interrupt;
+  VEC_INT14_COM1 = uart_interrupt;
 
   // Insert our own BRK vector
 
   // no need to set speed and 8n1 for U/U+ UART
   UART_FCR = 0b11100001; // enable FIFO
 
-  __restore_interrupt_state(st);
+  // Enable interrupt when receiving data
+  UART_IER = UINT_DATA_AVAIL;
 }
 
 char getDebugChar(void)
@@ -59,10 +60,4 @@ void putDebugChar(char c)
   while ((UART_LSR & LSR_XMIT_EMPTY) == 0)
     ;
   UART_TRHB = c;
-}
-
-void enableCtrlC(void)
-{
-  // Enable interrupt when receiving data
-  UART_IER = UINT_DATA_AVAIL;
 }
