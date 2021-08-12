@@ -87,6 +87,37 @@ typedef struct breakpoint {
 
 static breakpoint_t breakpoint[BREAKPOINTS];
 
+static unsigned breakpointCount = 0;
+
+static void insertBreakpoints ()
+{
+  unsigned sofar = 0;
+  for (unsigned i = 0; sofar < breakpointCount; i++)
+    {
+      if (breakpoint[i].active)
+        {
+          backing_t *p = breakpoint[i].address;
+          breakpoint[i].store = *p;
+          *p = BREAK_OPCODE;
+          sofar++;
+        }
+    }
+}
+
+static void removeBreakpoints ()
+{
+  unsigned sofar = 0;
+  for (unsigned i = 0; sofar < breakpointCount; i++)
+    {
+      if (breakpoint[i].active)
+        {
+          backing_t *p = breakpoint[i].address;
+          *p = breakpoint[i].store;
+          sofar++;
+        }
+    }
+}
+
 int hex (char ch)
 {
   if ((ch >= 'a') && (ch <= 'f'))
@@ -290,6 +321,8 @@ void handle_exception (unsigned sigval)
   putpacket (remcomOutBuffer);
 
   stepping = 0;
+
+  removeBreakpoints();
 
   while (1 == 1)
     {
@@ -542,10 +575,12 @@ illegal_binary_char:
               frame = 0;        /* null so _return... will properly initialize it */
             }
 
+          insertBreakpoints();
           _returnFromException (frame);   /* this is a jump */
 #else
-          // For targets without exception frames, restore the
-          // register vector and start execution.
+          // For targets without exception frames, insert user
+          // breakpoints, restore registers and start execution.
+          insertBreakpoints();
           continueExecution(&registers);  /* this is a jump */
 #endif
 
@@ -570,6 +605,7 @@ illegal_binary_char:
                         {
                           breakpoint[i].active = true;
                           breakpoint[i].address = bpAddress;
+                          breakpointCount++;
                           break;
                         }
                     }
@@ -592,6 +628,7 @@ illegal_binary_char:
                           && breakpoint[i].address == bpAddress)
                         {
                           breakpoint[i].active = false;
+                          breakpointCount--;
                           break;
                         }
                     }
