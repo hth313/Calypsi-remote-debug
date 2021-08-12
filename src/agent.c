@@ -1,4 +1,4 @@
-// comm.c - debugger agent using gdbserver protocol
+// agent.c - debugger agent using gdbserver protocol
 
 // This code is somewhat based on remcom.c or m68k-stub.c which
 // HP has placed in the public domain. It has been reworked here but
