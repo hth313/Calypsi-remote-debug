@@ -46,14 +46,14 @@ typedef uint8_t backing_t;
 #include <intrinsics65816.h>
 
 typedef struct {
-  uint32_t pc;                      //  0
-  uint16_t a;                       //  4
-  uint16_t x;                       //  6
-  uint16_t y;                       //  8
-  uint16_t sp;                      // 10
-  uint16_t dp;                      // 12
-  uint8_t  bank;                    // 14
-  uint8_t  sr;                      // 15
+  uint16_t a;                       //  0
+  uint16_t x;                       //  2
+  uint16_t y;                       //  4
+  uint16_t sp;                      //  6
+  uint16_t dp;                      //  8
+  uint8_t  bank;                    // 10
+  uint8_t  sr;                      // 11
+  uint32_t pc;                      // 12
 } register_t;
 
 // Breakpoint address type */
