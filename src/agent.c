@@ -10,7 +10,9 @@
 #include <setjmp.h>
 #include "api.h"
 
+#ifndef DEBUG
 #define DEBUG 0
+#endif
 
 /************************************************************************/
 /* BUFMAX defines the maximum number of characters in inbound/outbound buffers*/
@@ -44,14 +46,14 @@ typedef uint8_t backing_t;
 #include <intrinsics65816.h>
 
 typedef struct {
-  uint32_t pc;
-  uint16_t a;
-  uint16_t x;
-  uint16_t y;
-  uint16_t sp;
-  uint16_t dp;
-  uint8_t bank;
-  uint8_t sr;
+  uint32_t pc;                      //  0
+  uint16_t a;                       //  4
+  uint16_t x;                       //  6
+  uint16_t y;                       //  8
+  uint16_t sp;                      // 10
+  uint16_t dp;                      // 12
+  uint8_t  bank;                    // 14
+  uint8_t  sr;                      // 15
 } register_t;
 
 // Breakpoint address type */
