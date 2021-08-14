@@ -303,7 +303,7 @@ int hexToLongInt (char **ptr, long *value)
 /*
  * This function does all command processing.
  */
-void handle_exception (unsigned sigval)
+void handleException (unsigned sigval)
 {
   int stepping;
   unsigned length;

@@ -9,8 +9,8 @@
 #define ACIA_COMMAND   *(volatile char*)(ACIA_BASE + 2)
 #define ACIA_CONTROL   *(volatile char*)(ACIA_BASE + 3)
 
-extern void* interrupt_handler;
-extern void* break_handler;
+extern void* interruptHandler;
+extern void* breakHandler;
 
 #define IRQ_VECTOR   (*(void**)0x314)
 #define BREAK_VECTOR (*(void**)0x316)
@@ -28,10 +28,10 @@ void initialize(void)
   origIRQVector = IRQ_VECTOR;
 
   // Set our own interrupt handler. This is used to handle Ctrl-C
-  IRQ_VECTOR = interrupt_handler;
+  IRQ_VECTOR = interruptHandler;
 
   // Insert our own BRK vector
-  BREAK_VECTOR = break_handler;
+  BREAK_VECTOR = breakHandler;
 
   ACIA_CONTROL = 0x1f;   // baud rate generator, 8n1, 19200
   ACIA_COMMAND = 2;      // enable Ctrl-C interrupts

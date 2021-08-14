@@ -1,19 +1,19 @@
-              .public interrupt_handler
-              .public break_handler
+              .public interruptHandler
+              .public breakHandler
               .public continueExecution
-              .extern _Zp, registers, handle_exception, origIRQVector
+              .extern _Zp, registers, handleException, origIRQVector
 
 #define ACIA 0xde00
 
               .section code
 ;;; * Break instruction is the software breakpoint
-break_handler:                      ; save to 'registers'
+breakHandler:                       ; save to 'registers'
               jsr     saveFrame
               lda     #19           ; stop signal
 toMonitor:    sta     zp:_Zp+0
               lda     #0
               sta     zp:_Zp+1
-              jmp     handle_exception
+              jmp     handleException
 
 ;;; * Check for ACIA control C, otherwise call old handler
 interrupt_handler:
