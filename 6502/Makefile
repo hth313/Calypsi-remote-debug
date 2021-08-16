@@ -13,7 +13,7 @@ obj/%.o: %.c
 all: agent
 
 agent: $(OBJS)
-	ln6502 --target=c64 --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-6502.a --rtattr exit=simplified --output-format intel-hex
+	ln6502 --target=c64 --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-6502.a --rtattr exit=simplified --rtattr cstartup=\"c64-remote-debug\" --output-format intel-hex
 
 clean:
 	-rm $(OBJS) obj/*.lst agent

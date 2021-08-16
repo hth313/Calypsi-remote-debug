@@ -16,7 +16,7 @@ toMonitor:    sta     zp:_Zp+0
               jmp     handleException
 
 ;;; * Check for ACIA control C, otherwise call old handler
-interrupt_handler:
+interruptHandler:
               lda     ACIA + 1
               and     #8            ; got a character?
               beq     10$           ; no

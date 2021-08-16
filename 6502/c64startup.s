@@ -1,3 +1,6 @@
+              ;; Variant, change attribute value if you make your own
+              .rtmodel cstartup,"c64-remote-debug"
+
               ;; External declarations
               .section stack
               .section cstack
@@ -23,8 +26,8 @@ __program_start:
               sta     zp:_Vsp+1
 
 ;;; **** Initialize data sections if needed.
-              .section programStart, noreorder
-              .public __data_initialization_needed
+              .section programStart, noroot, noreorder
+              .pubweak __data_initialization_needed
               .extern __initialize_sections
 __data_initialization_needed:
               lda     #.byte0 (.sectionStart data_init_table)
@@ -37,14 +40,31 @@ __data_initialization_needed:
               sta     zp:_Zp+3
               jsr     __initialize_sections
 
-#if 0
 ;;; **** Initialize streams if needed.
-              .section programStart, noreorder
-              .public __call_initialize_global_streams
+              .section programStart, noroot, noreorder
+              .pubweak __call_initialize_global_streams
               .extern __initialize_global_streams
 __call_initialize_global_streams:
               jsr     __initialize_global_streams
-#endif
+
+;;; **** Initialize heap if needed.
+              .section programStart, noroot, noreorder
+              .pubweak __call_heap_initialize
+              .extern __heap_initialize, __default_heap
+__call_heap_initialize:
+              lda     #.byte0 __default_heap
+              sta     zp:_Zp+0
+              lda     #.byte1 __default_heap
+              sta     zp:_Zp+1
+              lda     #.byte0 (.sectionStart heap)
+              sta     zp:_Zp+2
+              lda     #.byte1 (.sectionStart heap)
+              sta     zp:_Zp+3
+              lda     #.byte0 (.sectionSize heap)
+              sta     zp:_Zp+4
+              lda     #.byte1 (.sectionSize heap)
+              sta     zp:_Zp+5
+              jsr     __heap_initialize
 
               .section programStart, root, noreorder
               tsx
