@@ -13,7 +13,7 @@ obj/%.o: %.c
 all: agent
 
 agent: $(OBJS)
-	ln65816 --target=foenix --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd-Foenix.a --rtattr exit=simplified --output-format pgz
+	ln65816 --target=foenix --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd-Foenix.a --rtattr exit=simplified --output-format pgz --heap-size=0 --stack-size=0x0400
 
 clean:
 	-rm $(OBJS) obj/*.lst agent
