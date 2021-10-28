@@ -1,17 +1,14 @@
+;;; Debug agent is placed as address 0x8000 and up. This
+;;; is the "reserved stack area" in the original kernel.
 (define memories
-  '((memory flash (address (#x10000 . #x1ffff))
-            (section farcode cfar chuge))
-    (memory LoRAM (address (#x4000 . #x8fff))
+  '((memory LoRAM (address (#x9600 . #x9fff))
             (section stack data zdata data heap))
-    (memory LoCODE (address (#x9000 . #xefff))
+    (memory LoCODE (address (#x8100 . #x95ff))
             (section code switch cdata data_init_table idata))
-    (memory FarRAM1 (address (#x30000 . #x3ffff))
-            (section zfar far zhuge huge))
-    (memory DirectPage (address (#xf000 . #xf0ff))
+    (memory DirectPage (address (#x8000 . #x80ff))
             (section (registers ztiny)))
     (memory Vector (address (#xfff0 . #xffff))
             (section (reset #xfffc)))
-    (block stack (size #x1000))
-    (block heap (size #x1000))
+    (block stack (size #x0600))
     (base-address _DirectPageStart DirectPage 0)
     ))
