@@ -1,3 +1,4 @@
-*/obj/*
+*/obj/*.lst
+*/obj/*.o
 */agent
 */agent.*
