@@ -2,8 +2,8 @@
 #include "api.h"
 #include <intrinsics65816.h>
 
-extern void *breakHandler;
-extern void *uartInterrupt;
+extern void breakHandler();
+extern void uartInterrupt();
 
 #ifdef SYS_C256_FMX
 /* Base address for UART 1 (COM1) */
@@ -25,8 +25,8 @@ extern void *uartInterrupt;
 
 #define LSR_XMIT_EMPTY 0x20     // Empty transmit holding register
 
-#define BRK_VECTOR    *(__far void**) 0x00ffe6
-#define IRQ_VECTOR    *(__far void**) 0x00ffee
+#define BRK_VECTOR    *(void**) 0x00ffe6
+#define IRQ_VECTOR    *(void**) 0x00ffee
 
 void *origIRQVector;
 void *origBRKVector;
@@ -39,7 +39,9 @@ void initialize(void)
   // Preserve original UART1 interrupt vector
   origIRQVector = IRQ_VECTOR;
 
-  // Set our own interrupt handler. This is used to handle Ctrl-C
+  // Set our own interrupt handler.
+  // This is used to handle Ctrl-C after allowing target program to
+  // continue execution, otherwise communication is polled.
   IRQ_VECTOR = uartInterrupt;
 
   // Preserve original BRK vector
