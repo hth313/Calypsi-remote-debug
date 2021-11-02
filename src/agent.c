@@ -204,10 +204,7 @@ char *getpacket (void)
 }
 
 /* send the packet in buffer. */
-
-void
-putpacket (buffer)
-     char *buffer;
+void putpacket (char *buffer)
 {
   unsigned char checksum;
   int count;
@@ -229,11 +226,10 @@ putpacket (buffer)
 
       putDebugChar ('#');
       putDebugChar (hexchars[checksum >> 4]);
-      putDebugChar (hexchars[checksum % 16]);
+      putDebugChar (hexchars[checksum & 15]);
 
     }
   while (getDebugChar () != '+');
-
 }
 
 #if DEBUG
@@ -254,7 +250,7 @@ char *mem2hex (char *mem, char *buf, unsigned count)
     {
       ch = *mem++;
       *buf++ = hexchars[ch >> 4];
-      *buf++ = hexchars[ch % 16];
+      *buf++ = hexchars[ch & 15];
     }
   *buf = 0;
   return (buf);
@@ -317,10 +313,10 @@ void handleException (unsigned sigval)
   /* reply to host that an exception has occurred */
   remcomOutBuffer[0] = 'S';
   remcomOutBuffer[1] = hexchars[sigval >> 4];
-  remcomOutBuffer[2] = hexchars[sigval % 16];
+  remcomOutBuffer[2] = hexchars[sigval & 15];
   remcomOutBuffer[3] = 0;
 
-  putpacket (remcomOutBuffer);
+  putpacket(remcomOutBuffer);
 
   stepping = 0;
 
@@ -335,7 +331,7 @@ void handleException (unsigned sigval)
         case '?':
           remcomOutBuffer[0] = 'S';
           remcomOutBuffer[1] = hexchars[sigval >> 4];
-          remcomOutBuffer[2] = hexchars[sigval % 16];
+          remcomOutBuffer[2] = hexchars[sigval & 15];
           remcomOutBuffer[3] = 0;
           break;
         case 'd':
@@ -641,7 +637,7 @@ illegal_binary_char:
         }                       /* switch */
 
       /* reply to the request */
-      putpacket (remcomOutBuffer);
+      putpacket(remcomOutBuffer);
     }
 }
 
