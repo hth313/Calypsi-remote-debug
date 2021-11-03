@@ -10,10 +10,10 @@ obj/%.o: %.s
 obj/%.o: %.c
 	cc65816 --data-model=small --code-model=small --target=foenix -O2 --list-file=$(@:%.o=%.lst) -o $@ $<
 
-all: agent
+all: agent.hex
 
-agent: $(OBJS)
-	ln65816 --target=foenix --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd-Foenix.a --rtattr exit=simplified --output-format pgz --heap-size=0 --stack-size=0x0400
+agent.hex: $(OBJS)
+	ln65816 --target=foenix --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd-Foenix.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
 
 clean:
-	-rm $(OBJS) obj/*.lst agent
+	-rm $(OBJS) obj/*.lst agent.hex
