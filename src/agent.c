@@ -644,6 +644,9 @@ illegal_binary_char:
 int main ()
 {
   initialize();
+  putDebugChar('F');
+  putDebugChar('o');
+  putDebugChar('o');
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();
 #endif
