@@ -76,7 +76,7 @@ void initialize(void)
   origBRKVector = BRK_VECTOR;
 
   // Insert our own BRK vector
-//  BRK_VECTOR = breakHandler;
+  BRK_VECTOR = breakHandler;
 
   // Set speed
   UART_LCR |= LCR_DLB;     // enable divisor latch

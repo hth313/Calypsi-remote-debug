@@ -143,7 +143,7 @@ char *getpacket (void)
   while (1)
     {
       /* wait around for the start character, ignore all other characters */
-      while ((ch = getDebugChar ()) != '$')
+      while ((ch = getDebugChar()) != '$')
         ;
 
     retry:
@@ -154,7 +154,7 @@ char *getpacket (void)
       /* now, read until a # or end of buffer is found */
       while (count < BUFMAX - 1)
         {
-          ch = getDebugChar ();
+          ch = getDebugChar();
           if (ch == '$')
             goto retry;
           if (ch == '#')
@@ -167,32 +167,32 @@ char *getpacket (void)
 
       if (ch == '#')
         {
-          ch = getDebugChar ();
-          xmitcsum = hex (ch) << 4;
-          ch = getDebugChar ();
-          xmitcsum += hex (ch);
+          ch = getDebugChar();
+          xmitcsum = hex(ch) << 4;
+          ch = getDebugChar();
+          xmitcsum += hex(ch);
 
           if (checksum != xmitcsum)
             {
 #if DEBUG
               if (remote_debug)
                 {
-                  fprintf (stderr,
-                           "bad checksum.  My count = 0x%x, sent=0x%x. buf=%s\n",
-                           checksum, xmitcsum, buffer);
+                  fprintf(stderr,
+                          "bad checksum.  My count = 0x%x, sent=0x%x. buf=%s\n",
+                          checksum, xmitcsum, buffer);
                 }
 #endif
-              putDebugChar ('-');       /* failed checksum */
+              putDebugChar('-');       /* failed checksum */
             }
           else
             {
-              putDebugChar ('+');       /* successful transfer */
+              putDebugChar('+');       /* successful transfer */
 
               /* if a sequence char is present, reply the sequence ID */
               if (buffer[2] == ':')
                 {
-                  putDebugChar (buffer[0]);
-                  putDebugChar (buffer[1]);
+                  putDebugChar(buffer[0]);
+                  putDebugChar(buffer[1]);
 
                   return &buffer[3];
                 }
@@ -213,30 +213,30 @@ void putpacket (char *buffer)
   /*  $<packet info>#<checksum>. */
   do
     {
-      putDebugChar ('$');
+      putDebugChar('$');
       checksum = 0;
       count = 0;
 
       while ((ch = buffer[count]))
         {
-          putDebugChar (ch);
+          putDebugChar(ch);
           checksum += ch;
           count += 1;
         }
 
-      putDebugChar ('#');
-      putDebugChar (hexchars[checksum >> 4]);
-      putDebugChar (hexchars[checksum & 15]);
+      putDebugChar('#');
+      putDebugChar(hexchars[checksum >> 4]);
+      putDebugChar(hexchars[checksum & 15]);
 
     }
-  while (getDebugChar () != '+');
+  while (getDebugChar() != '+');
 }
 
 #if DEBUG
 void debug_error (char *format, char *parm)
 {
   if (remote_debug)
-    fprintf (stderr, format, parm);
+    fprintf(stderr, format, parm);
 }
 #endif
 
@@ -253,7 +253,7 @@ char *mem2hex (char *mem, char *buf, unsigned count)
       *buf++ = hexchars[ch & 15];
     }
   *buf = 0;
-  return (buf);
+  return buf;
 }
 
 /* convert the hex array pointed to by buf into binary to be placed in mem */
@@ -264,11 +264,11 @@ char *hex2mem (char *buf, char *mem, int count)
   unsigned char ch;
   for (i = 0; i < count; i++)
     {
-      ch = hex (*buf++) << 4;
-      ch = ch + hex (*buf++);
+      ch = hex(*buf++) << 4;
+      ch = ch + hex(*buf++);
       *mem++ = ch;
     }
-  return (mem);
+  return mem;
 }
 
 /* WHILE WE FIND NICE HEX CHARS, BUILD AN INT */
@@ -283,7 +283,7 @@ int hexToLongInt (char **ptr, long *value)
 
   while (**ptr)
     {
-      hexValue = hex (**ptr);
+      hexValue = hex(**ptr);
       if (hexValue >= 0)
         {
           *value = (*value << 4) | hexValue;
@@ -295,7 +295,7 @@ int hexToLongInt (char **ptr, long *value)
       (*ptr)++;
     }
 
-  return (numChars);
+  return numChars;
 }
 
 /*
@@ -325,7 +325,7 @@ void handleException (unsigned sigval)
   while (1 == 1)
     {
       remcomOutBuffer[0] = 0;
-      ptr = getpacket ();
+      ptr = getpacket();
       switch (*ptr++)
         {
         case '?':
@@ -340,58 +340,58 @@ void handleException (unsigned sigval)
 #endif
           break;
         case 'g':               /* return the value of the CPU registers */
-          mem2hex ((char *) &registers, remcomOutBuffer, sizeof(registers));
+          mem2hex((char *) &registers, remcomOutBuffer, sizeof(registers));
           break;
         case 'G':               /* set the value of the CPU registers - return OK */
-          hex2mem (ptr, (char *) &registers, sizeof(registers));
-          strcpy (remcomOutBuffer, "OK");
+          hex2mem(ptr, (char *) &registers, sizeof(registers));
+          strcpy(remcomOutBuffer, "OK");
           break;
 
           /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
         case 'm':
-          if (setjmp (remcomEnv) == 0)
+          if (setjmp(remcomEnv) == 0)
             {
 #if defined (__CALYPSI_TARGET_68000__)
-              exceptionHandler (2, handle_buserror);
+              exceptionHandler(2, handle_buserror);
 #endif
               /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
-              if (hexToLongInt (&ptr, &lvalue))
+              if (hexToLongInt(&ptr, &lvalue))
                 {
                   addr = (char*) lvalue;
                   if (   *(ptr++) == ','
-                      && hexToLongInt (&ptr, &lvalue))
+                      && hexToLongInt(&ptr, &lvalue))
                     {
                       length = lvalue;
                       ptr = 0;
-                      mem2hex ((char *) addr, remcomOutBuffer, length);
+                      mem2hex((char *) addr, remcomOutBuffer, length);
                     }
                 }
               if (ptr)
                 {
-                  strcpy (remcomOutBuffer, "E01");
+                  strcpy(remcomOutBuffer, "E01");
                 }
             }
 #if defined (__CALYPSI_TARGET_68000__)
           else
             {
-              exceptionHandler (2, _catchException);
-              strcpy (remcomOutBuffer, "E03");
-              debug_error ("bus error");
+              exceptionHandler(2, _catchException);
+              strcpy(remcomOutBuffer, "E03");
+              debug_error("bus error");
             }
 
           /* restore handler for bus error */
-          exceptionHandler (2, _catchException);
+          exceptionHandler(2, _catchException);
 #endif
           break;
 
           /* ‘X addr,length:XX…’ where XX.. is binary data */
         case 'X':
           /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
-          if (   hexToLongInt (&ptr, &lvalue)
+          if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
               addr = (char*) lvalue;
-              if (   hexToLongInt (&ptr, &lvalue)
+              if (   hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ':')
                 {
                   length = lvalue;
@@ -423,42 +423,42 @@ illegal_binary_char:
 
           /* MAA..AA,LLLL: Write LLLL bytes at address AA.AA return OK */
         case 'M':
-          if (setjmp (remcomEnv) == 0)
+          if (setjmp(remcomEnv) == 0)
             {
 #if defined (__CALYPSI_TARGET_68000__)
-              exceptionHandler (2, handle_buserror);
+              exceptionHandler(2, handle_buserror);
 #endif
               /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
-              if (    hexToLongInt (&ptr, &lvalue)
+              if (    hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ',')
                 {
                   addr = (char*) lvalue;
-                  if (   hexToLongInt (&ptr, &lvalue)
+                  if (   hexToLongInt(&ptr, &lvalue)
                       &&  *(ptr++) == ':')
                     {
                       length = lvalue;
-                      hex2mem (ptr, (char *) addr, length);
+                      hex2mem(ptr, (char *) addr, length);
                       ptr = 0;
-                      strcpy (remcomOutBuffer, "OK");
+                      strcpy(remcomOutBuffer, "OK");
                     }
                 }
               if (ptr)
                 {
-                  strcpy (remcomOutBuffer, "E02");
+                  strcpy(remcomOutBuffer, "E02");
                 }
             }
 #if defined (__CALYPSI_TARGET_68000__)
           else
             {
-              exceptionHandler (2, _catchException);
-              strcpy (remcomOutBuffer, "E03");
+              exceptionHandler(2, _catchException);
+              strcpy(remcomOutBuffer, "E03");
 #if DEBUG
-              debug_error ("bus error");
+              debug_error("bus error");
 #endif
             }
 
           /* restore handler for bus error */
-          exceptionHandler (2, _catchException);
+          exceptionHandler(2, _catchException);
 #endif
           break;
 
@@ -468,7 +468,7 @@ illegal_binary_char:
           stepping = 1;
         case 'c':
           /* try to read optional parameter, pc unchanged if no parm */
-          if (hexToLongInt (&ptr, &lvalue))
+          if (hexToLongInt(&ptr, &lvalue))
             {
               registers.pc = lvalue;
             }
@@ -499,8 +499,8 @@ illegal_binary_char:
             {
 #if DEBUG
               if (remote_debug)
-                printf ("frame at 0x%x has pc=0x%x, except#=%d\n",
-                        frame, frame->exceptionPC, frame->exceptionVector);
+                printf("frame at 0x%x has pc=0x%x, except#=%d\n",
+                       frame, frame->exceptionPC, frame->exceptionVector);
 #endif
               if (frame->exceptionPC == newPC)
                 break;          /* bingo! a match */
@@ -535,20 +535,21 @@ illegal_binary_char:
                   /*
                    * invoke the previous handler.
                    */
-                  if (oldExceptionHook)
-                    (*oldExceptionHook) (frame->exceptionVector);
+                  if (oldExceptionHook) {
+                    (*oldExceptionHook)(frame->exceptionVector);
+                  }
                   newPC = registers[PC];        /* pc may have changed  */
                   if (newPC != frame->exceptionPC)
                     {
 #if DEBUG
                       if (remote_debug)
-                        printf ("frame at 0x%x has pc=0x%x, except#=%d\n",
-                                frame, frame->exceptionPC,
-                                frame->exceptionVector);
+                        printf("frame at 0x%x has pc=0x%x, except#=%d\n",
+                               frame, frame->exceptionPC,
+                               frame->exceptionVector);
 #endif
                       /* re-use the last frame, we're skipping it (longjump?) */
                       frame = (Frame *) 0;
-                      _returnFromException (frame);     /* this is a jump */
+                      _returnFromException(frame);     /* this is a jump */
                     }
                 }
             }
@@ -574,7 +575,7 @@ illegal_binary_char:
             }
 
           insertBreakpoints();
-          _returnFromException (frame);   /* this is a jump */
+          _returnFromException(frame);   /* this is a jump */
 #else
           // For targets without exception frames, insert user
           // breakpoints, restore registers and start execution.
@@ -590,11 +591,11 @@ illegal_binary_char:
 
           /* ‘Z0,addr,kind insert a breakpoint */
         case 'Z':
-          if (   hexToLongInt (&ptr, &lvalue)
+          if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
               address_t bpAddress = (address_t) lvalue;
-              if (hexToLongInt (&ptr, &lvalue))
+              if (hexToLongInt(&ptr, &lvalue))
                 {
 //                int kind = lvalue;
                   for (unsigned i = 0; i < BREAKPOINTS; i++)
@@ -613,11 +614,11 @@ illegal_binary_char:
 
           /* ‘z0,addr,kind remove a breakpoint */
         case 'z':
-          if (   hexToLongInt (&ptr, &lvalue)
+          if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
               address_t bpAddress = (address_t) lvalue;
-              if (hexToLongInt (&ptr, &lvalue))
+              if (hexToLongInt(&ptr, &lvalue))
                 {
 //                int kind = lvalue;
                   for (unsigned i = 0; i < BREAKPOINTS; i++)
@@ -644,9 +645,6 @@ illegal_binary_char:
 int main ()
 {
   initialize();
-  putDebugChar('F');
-  putDebugChar('o');
-  putDebugChar('o');
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();
 #endif
