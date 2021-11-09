@@ -605,6 +605,7 @@ illegal_binary_char:
                           breakpoint[i].active = true;
                           breakpoint[i].address = bpAddress;
                           breakpointCount++;
+                          strcpy(remcomOutBuffer, "OK");
                           break;
                         }
                     }
@@ -628,6 +629,7 @@ illegal_binary_char:
                         {
                           breakpoint[i].active = false;
                           breakpointCount--;
+                          strcpy(remcomOutBuffer, "OK");
                           break;
                         }
                     }
