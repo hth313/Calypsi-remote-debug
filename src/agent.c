@@ -77,9 +77,11 @@ typedef __far char * memory_t;
 
 typedef struct {
   uint32_t d[8];                    //  0
-  uint32_t a[8];                    // 32
-  uint32_t pc;                      // 64
-  uint16_t sr;                      // 68
+  uint32_t a[7];                    // 32
+  uint32_t ssp;                     // 60
+  uint32_t usp;                     // 64
+  uint32_t pc;                      // 68
+  uint16_t sr;                      // 72
 } register_t;
 
 // Breakpoint address type */
