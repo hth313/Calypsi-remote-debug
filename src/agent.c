@@ -22,6 +22,8 @@
 /* BREAKPOINTS defines the maximum number of software (code modifying breakpoints */
 #define BREAKPOINTS 25
 
+/************************************************************************/
+
 #ifdef __CALYPSI_TARGET_6502__
 #include <intrinsics6502.h>
 
@@ -35,12 +37,15 @@ typedef struct {
 } register_t;
 
 // Breakpoint address type */
-typedef void * address_t;
+typedef uint8_t * address_t;
 typedef uint8_t backing_t;
+typedef char * memory_t;
 
 #define BREAK_OPCODE 0
 
 #endif // __CALYPSI_TARGET_6502__
+
+/************************************************************************/
 
 #ifdef __CALYPSI_TARGET_65816__
 #include <intrinsics65816.h>
@@ -57,8 +62,9 @@ typedef struct {
 } register_t;
 
 // Breakpoint address type */
-typedef __far void * address_t;
+typedef __far uint8_t * address_t;
 typedef uint8_t backing_t;
+typedef __far char * memory_t;
 
 #define BREAK_OPCODE 0
 
@@ -242,10 +248,10 @@ void debug_error (char *format, char *parm)
 
 /* convert the memory pointed to by mem into hex, placing result in buf */
 /* return a pointer to the last char put in buf (null) */
-char *mem2hex (char *mem, char *buf, unsigned count)
+memory_t mem2hex (memory_t mem, char *buf, unsigned count)
 {
   int i;
-  unsigned char ch;
+  char ch;
   for (i = 0; i < count; i++)
     {
       ch = *mem++;
@@ -258,10 +264,10 @@ char *mem2hex (char *mem, char *buf, unsigned count)
 
 /* convert the hex array pointed to by buf into binary to be placed in mem */
 /* return a pointer to the character AFTER the last byte written */
-char *hex2mem (char *buf, char *mem, int count)
+memory_t hex2mem (char *buf, memory_t mem, int count)
 {
   int i;
-  unsigned char ch;
+  char ch;
   for (i = 0; i < count; i++)
     {
       ch = hex(*buf++) << 4;
@@ -314,7 +320,7 @@ void handleException (unsigned sigval)
   int stepping;
   unsigned length;
   long lvalue;
-  char *addr;
+  memory_t addr;
   char *ptr;
   int newPC;
 
@@ -341,10 +347,10 @@ void handleException (unsigned sigval)
 #endif
           break;
         case 'g':               /* return the value of the CPU registers */
-          mem2hex((char *) &registers, remcomOutBuffer, sizeof(registers));
+          mem2hex((memory_t) &registers, remcomOutBuffer, sizeof(registers));
           break;
         case 'G':               /* set the value of the CPU registers - return OK */
-          hex2mem(ptr, (char *) &registers, sizeof(registers));
+          hex2mem(ptr, (memory_t) &registers, sizeof(registers));
           strcpy(remcomOutBuffer, "OK");
           break;
 
@@ -358,13 +364,13 @@ void handleException (unsigned sigval)
               /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
               if (hexToLongInt(&ptr, &lvalue))
                 {
-                  addr = (char*) lvalue;
+                  addr = (memory_t) lvalue;
                   if (   *(ptr++) == ','
                       && hexToLongInt(&ptr, &lvalue))
                     {
                       length = lvalue;
                       ptr = 0;
-                      mem2hex((char *) addr, remcomOutBuffer, length);
+                      mem2hex((memory_t)addr, remcomOutBuffer, length);
                     }
                 }
               if (ptr)
@@ -391,7 +397,7 @@ void handleException (unsigned sigval)
           if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
-              addr = (char*) lvalue;
+              addr = (memory_t) lvalue;
               if (   hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ':')
                 {
@@ -433,12 +439,12 @@ illegal_binary_char:
               if (    hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ',')
                 {
-                  addr = (char*) lvalue;
+                  addr = (memory_t) lvalue;
                   if (   hexToLongInt(&ptr, &lvalue)
                       &&  *(ptr++) == ':')
                     {
                       length = lvalue;
-                      hex2mem(ptr, (char *) addr, length);
+                      hex2mem(ptr, addr, length);
                       ptr = 0;
                       strcpy(remcomOutBuffer, "OK");
                     }
