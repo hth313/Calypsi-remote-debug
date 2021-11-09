@@ -298,6 +298,14 @@ int hexToLongInt (char **ptr, long *value)
   return numChars;
 }
 
+static void signalPacket (unsigned sigval)
+{
+  remcomOutBuffer[0] = 'S';
+  remcomOutBuffer[1] = hexchars[sigval >> 4];
+  remcomOutBuffer[2] = hexchars[sigval & 15];
+  remcomOutBuffer[3] = 0;
+}
+
 /*
  * This function does all command processing.
  */
@@ -311,11 +319,7 @@ void handleException (unsigned sigval)
   int newPC;
 
   /* reply to host that an exception has occurred */
-  remcomOutBuffer[0] = 'S';
-  remcomOutBuffer[1] = hexchars[sigval >> 4];
-  remcomOutBuffer[2] = hexchars[sigval & 15];
-  remcomOutBuffer[3] = 0;
-
+  signalPacket(sigval);
   putpacket(remcomOutBuffer);
 
   stepping = 0;
@@ -329,10 +333,7 @@ void handleException (unsigned sigval)
       switch (*ptr++)
         {
         case '?':
-          remcomOutBuffer[0] = 'S';
-          remcomOutBuffer[1] = hexchars[sigval >> 4];
-          remcomOutBuffer[2] = hexchars[sigval & 15];
-          remcomOutBuffer[3] = 0;
+          signalPacket(sigval);
           break;
         case 'd':
 #if DEBUG
