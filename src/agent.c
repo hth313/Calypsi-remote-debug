@@ -70,6 +70,29 @@ typedef __far char * memory_t;
 
 #endif // __CALYPSI_TARGET_65816__
 
+/************************************************************************/
+
+#ifdef __CALYPSI_TARGET_M68K__
+#include <intrinsics65816.h>
+
+typedef struct {
+  uint32_t d[8];                    //  0
+  uint32_t a[8];                    // 32
+  uint32_t pc;                      // 64
+  uint16_t sr;                      // 68
+} register_t;
+
+// Breakpoint address type */
+typedef uint16_t * address_t;
+typedef uint16_t backing_t;
+typedef char * memory_t;
+
+#define BREAK_OPCODE 0
+
+#endif // __CALYPSI_TARGET_M68K__
+
+/************************************************************************/
+
 static const char hexchars[]="0123456789abcdef";
 
 // This is the register buffer
