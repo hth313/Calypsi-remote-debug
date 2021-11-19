@@ -289,7 +289,7 @@ memory_t mem2hex (memory_t mem, char *buf, unsigned count)
 
 /* convert the hex array pointed to by buf into binary to be placed in mem */
 /* return a pointer to the character AFTER the last byte written */
-memory_t hex2mem (char *buf, memory_t mem, int count)
+memory_t hex2mem (char *buf, memory_t mem, size_t count)
 {
   int i;
   char ch;
@@ -343,7 +343,7 @@ static void signalPacket (unsigned sigval)
 void handleException (unsigned sigval)
 {
   int stepping;
-  unsigned length;
+  size_t length;
   long lvalue;
   memory_t addr;
   char *ptr;
