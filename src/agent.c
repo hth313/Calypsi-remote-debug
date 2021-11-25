@@ -144,8 +144,7 @@ static void removeBreakpoints ()
     {
       if (breakpoint[i].active)
         {
-          backing_t *p = breakpoint[i].address;
-          *p = breakpoint[i].store;
+          *breakpoint[i].address = breakpoint[i].store;
           sofar++;
         }
     }
