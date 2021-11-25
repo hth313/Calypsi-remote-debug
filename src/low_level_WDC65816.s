@@ -11,7 +11,7 @@
 breakHandler:
               jsr     saveRegisters
               lda     ##19
-toMonitor:    jmp     long:handleException
+toMonitor:    jmp     handleException
 
 uartInterrupt:
               pha
@@ -56,44 +56,40 @@ saveRegisters:
               plb                   ; pop 8 dummy
               plb                   ; set data bank
 
-              stx     abs:registers + 6 ; save X
-              sty     abs:registers + 8 ; save Y
+              stx     abs:registers + 2 ; save X
+              sty     abs:registers + 4 ; save Y
 
-              lda     3,s
-              sta     abs:registers + 11 ; save status register
+              lda     3,s           ; save status register and low pc
+              sta     abs:registers + 11
 
               tsc
-              inc     a
+              inc     a             ; correct SP
               inc     a
               sta     abs:registers + 6 ; save SP
 
-              lda     4,s           ; save PC
-              sta     abs:registers + 12
-              lda     6,s
-              sta     abs:registers + 14
+              lda     5,s           ; save rest of PC
+              sta     abs:registers + 13
               rts
 
 continueExecution:
-              lda registers + 10
-              inc     a
+              lda     abs:registers + 6
+              dec     a             ; reserve space for bank
               tcs                   ; set stack pointer
 
-              lda     registers + 15 ; status register
+              lda     abs:registers + 9 ; data bank
+              sta     0,s
+
+              lda     abs:registers + 11 ; status register (and PC)
               sta     2,s
 
-              lda     registers + 2 ; PC upper part
-              xba
+              lda     abs:registers + 13 ; more PC
               sta     4,s
-              lda     registers + 0 ; PC lower part
-              sta     3,s
 
-              lda     registers + 13 ; data bank
-              sta     0,s
-              plb
+              ldy     abs:registers + 4
+              ldx     abs:registers + 2
 
-              lda     registers + 12 ; direct page
+              lda     abs:registers + 8 ; load target direct page
               tcd
-              ldy     registers + 8
-              ldx     registers + 6
-              lda     registers + 4
+              lda     abs:registers + 0
+              plb                   ; load target data bank
               rti
