@@ -73,7 +73,7 @@ typedef __far char * memory_t;
 /************************************************************************/
 
 #ifdef __CALYPSI_TARGET_M68K__
-#include <intrinsics65816.h>
+#include <intrinsics68000.h>
 
 typedef struct {
   uint32_t d[8];                    //  0
