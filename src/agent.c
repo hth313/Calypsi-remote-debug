@@ -89,7 +89,7 @@ typedef uint16_t * address_t;
 typedef uint16_t backing_t;
 typedef char * memory_t;
 
-#define BREAK_OPCODE 0
+#define BREAK_OPCODE 0x4848
 
 #endif // __CALYPSI_TARGET_M68K__
 
