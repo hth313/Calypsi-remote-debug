@@ -37,9 +37,8 @@ typedef struct {
 } register_t;
 
 // Breakpoint address type */
-typedef uint8_t * address_t;
+typedef char * address_t;
 typedef uint8_t backing_t;
-typedef char * memory_t;
 
 #define BREAK_OPCODE 0
 
@@ -64,7 +63,6 @@ typedef struct {
 // Breakpoint address type */
 typedef __far uint8_t * address_t;
 typedef uint8_t backing_t;
-typedef __far char * memory_t;
 
 #define BREAK_OPCODE 0
 
@@ -87,7 +85,6 @@ typedef struct {
 // Breakpoint address type */
 typedef uint16_t * address_t;
 typedef uint16_t backing_t;
-typedef char * memory_t;
 
 #define BREAK_OPCODE 0x4848
 
@@ -272,7 +269,7 @@ void debug_error (char *format, char *parm)
 
 /* convert the memory pointed to by mem into hex, placing result in buf */
 /* return a pointer to the last char put in buf (null) */
-memory_t mem2hex (memory_t mem, char *buf, unsigned count)
+address_t mem2hex (address_t mem, char *buf, unsigned count)
 {
   int i;
   char ch;
@@ -283,12 +280,12 @@ memory_t mem2hex (memory_t mem, char *buf, unsigned count)
       *buf++ = hexchars[ch & 15];
     }
   *buf = 0;
-  return buf;
+  return (address_t) buf;
 }
 
 /* convert the hex array pointed to by buf into binary to be placed in mem */
 /* return a pointer to the character AFTER the last byte written */
-memory_t hex2mem (char *buf, memory_t mem, size_t count)
+address_t hex2mem (char *buf, address_t mem, size_t count)
 {
   int i;
   char ch;
@@ -344,7 +341,7 @@ void handleException (unsigned sigval)
   int stepping;
   size_t length;
   long lvalue;
-  memory_t addr;
+  address_t addr;
   char *ptr;
   int newPC;
 
@@ -371,10 +368,10 @@ void handleException (unsigned sigval)
 #endif
           break;
         case 'g':               /* return the value of the CPU registers */
-          mem2hex((memory_t) &registers, remcomOutBuffer, sizeof(registers));
+          mem2hex((address_t) &registers, remcomOutBuffer, sizeof(registers));
           break;
         case 'G':               /* set the value of the CPU registers - return OK */
-          hex2mem(ptr, (memory_t) &registers, sizeof(registers));
+          hex2mem(ptr, (address_t) &registers, sizeof(registers));
           strcpy(remcomOutBuffer, "OK");
           break;
 
@@ -388,13 +385,13 @@ void handleException (unsigned sigval)
               /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
               if (hexToLongInt(&ptr, &lvalue))
                 {
-                  addr = (memory_t) lvalue;
+                  addr = (address_t) lvalue;
                   if (   *(ptr++) == ','
                       && hexToLongInt(&ptr, &lvalue))
                     {
                       length = lvalue;
                       ptr = 0;
-                      mem2hex((memory_t)addr, remcomOutBuffer, length);
+                      mem2hex((address_t)addr, remcomOutBuffer, length);
                     }
                 }
               if (ptr)
@@ -421,7 +418,7 @@ void handleException (unsigned sigval)
           if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
-              addr = (memory_t) lvalue;
+              addr = (address_t) lvalue;
               if (   hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ':')
                 {
@@ -463,7 +460,7 @@ illegal_binary_char:
               if (    hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ',')
                 {
-                  addr = (memory_t) lvalue;
+                  addr = (address_t) lvalue;
                   if (   hexToLongInt(&ptr, &lvalue)
                       &&  *(ptr++) == ':')
                     {
