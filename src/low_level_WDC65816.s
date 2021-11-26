@@ -10,6 +10,8 @@
               .section code
 breakHandler:
               jsr     saveRegisters
+              dec     abs:registers + 12 ; adjust stop address with BRK
+              dec     abs:registers + 12
               lda     ##19
 toMonitor:    jmp     handleException
 
@@ -71,6 +73,7 @@ saveRegisters:
               sta     abs:registers + 13
               rts
 
+;;; Prepare target for executing the code we are debugging.
 continueExecution:
               lda     abs:registers + 6
               dec     a             ; reserve space for bank
