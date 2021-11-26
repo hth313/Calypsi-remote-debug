@@ -129,7 +129,7 @@ static void insertBreakpoints ()
     {
       if (breakpoint[i].active)
         {
-          backing_t *p = breakpoint[i].address;
+          address_t p = breakpoint[i].address;
           breakpoint[i].store = *p;
           *p = BREAK_OPCODE;
           sofar++;
@@ -625,19 +625,28 @@ illegal_binary_char:
           if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
-              address_t bpAddress = (address_t) lvalue;
-              if (hexToLongInt(&ptr, &lvalue))
+              if (lvalue != 0)
                 {
-//                int kind = lvalue;
-                  for (unsigned i = 0; i < BREAKPOINTS; i++)
+                  // Only type 0 = software breakpoints currently allowed
+                  break;
+                }
+              if (   hexToLongInt(&ptr, &lvalue)
+                  && *(ptr++) == ',')
+                {
+                  address_t bpAddress = (address_t) lvalue;
+                  if (hexToLongInt(&ptr, &lvalue))
                     {
-                      if (!breakpoint[i].active)
+//                      int kind = lvalue;
+                      for (unsigned i = 0; i < BREAKPOINTS; i++)
                         {
-                          breakpoint[i].active = true;
-                          breakpoint[i].address = bpAddress;
-                          breakpointCount++;
-                          strcpy(remcomOutBuffer, "OK");
-                          break;
+                          if ( ! breakpoint[i].active )
+                            {
+                              breakpoint[i].active = true;
+                              breakpoint[i].address = bpAddress;
+                              breakpointCount++;
+                              strcpy(remcomOutBuffer, "OK");
+                              break;
+                            }
                         }
                     }
                 }
@@ -649,19 +658,28 @@ illegal_binary_char:
           if (   hexToLongInt(&ptr, &lvalue)
               && *(ptr++) == ',')
             {
-              address_t bpAddress = (address_t) lvalue;
-              if (hexToLongInt(&ptr, &lvalue))
+              if (lvalue != 0)
                 {
-//                int kind = lvalue;
-                  for (unsigned i = 0; i < BREAKPOINTS; i++)
+                  // Only type 0 = software breakpoints currently allowed
+                  break;
+                }
+              if (   hexToLongInt(&ptr, &lvalue)
+                  && *(ptr++) == ',')
+                {
+                  address_t bpAddress = (address_t) lvalue;
+                  if (hexToLongInt(&ptr, &lvalue))
                     {
-                      if (   breakpoint[i].active
-                          && breakpoint[i].address == bpAddress)
+//                      int kind = lvalue;
+                      for (unsigned i = 0; i < BREAKPOINTS; i++)
                         {
-                          breakpoint[i].active = false;
-                          breakpointCount--;
-                          strcpy(remcomOutBuffer, "OK");
-                          break;
+                          if (   breakpoint[i].active
+                              && breakpoint[i].address == bpAddress)
+                            {
+                              breakpoint[i].active = false;
+                              breakpointCount--;
+                              strcpy(remcomOutBuffer, "OK");
+                              break;
+                            }
                         }
                     }
                 }
