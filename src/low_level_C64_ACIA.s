@@ -9,7 +9,13 @@
 ;;; * Break instruction is the software breakpoint
 breakHandler:                       ; save to 'registers'
               jsr     saveFrame
-              lda     #19           ; stop signal
+              sec                   ; adjust stop address for BRK
+              lda     registers + 0
+              sbc     #2
+              sta     registers + 0
+              bcs     10$
+              dec     registers + 1
+10$:          lda     #19           ; stop signal
 toMonitor:    sta     zp:_Zp+0
               lda     #0
               sta     zp:_Zp+1
