@@ -49,6 +49,12 @@ typedef uint8_t backing_t;
 #ifdef __CALYPSI_TARGET_65816__
 #include <intrinsics65816.h>
 
+#ifdef __CALYPSI_TARGET_SYSTEM_FOENIX__
+// Cannot have the math unit enabled as we may debug code that
+// uses it and such code must be atomic.
+#pragma GCC error "do not compile with Foenix math unit enabled!"
+#endif
+
 typedef struct {
   uint16_t a;                       //  0
   uint16_t x;                       //  2
@@ -72,6 +78,12 @@ typedef uint8_t backing_t;
 
 #ifdef __CALYPSI_TARGET_M68K__
 #include <intrinsics68000.h>
+
+#ifdef __CALYPSI_TARGET_SYSTEM_FOENIX__
+// Cannot have the math unit enabled as we may debug code that
+// uses it and such code must be atomic.
+#pragma GCC error "do not compile with Foenix math unit enabled!"
+#endif
 
 typedef struct {
   uint32_t d[8];                    //  0
