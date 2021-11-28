@@ -13,7 +13,7 @@ obj/%.o: %.c
 all: agent.hex
 
 agent.hex: $(OBJS)
-	ln65816 --hosted --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
+	ln65816 --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
 
 clean:
 	-rm $(OBJS) obj/*.lst agent.hex
