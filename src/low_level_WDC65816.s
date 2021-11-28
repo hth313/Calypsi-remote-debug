@@ -65,8 +65,8 @@ saveRegisters:
               sta     abs:registers + 11
 
               tsc
-              inc     a             ; correct SP
-              inc     a
+              clc
+              adc     ##6           ; correct SP
               sta     abs:registers + 6 ; save SP
 
               lda     5,s           ; save rest of PC
@@ -76,7 +76,8 @@ saveRegisters:
 ;;; Prepare target for executing the code we are debugging.
 continueExecution:
               lda     abs:registers + 6
-              dec     a             ; reserve space for bank
+              sec
+              sbc     ##5           ; reserve space for RTI frame and bank
               tcs                   ; set stack pointer
 
               lda     abs:registers + 9 ; data bank
