@@ -36,6 +36,10 @@ typedef struct {
   uint8_t  sr;
 } register_t;
 
+uint8_t  sr_save;
+
+#define I_BIT   4
+
 // Breakpoint address type */
 typedef char * address_t;
 typedef uint8_t backing_t;
@@ -65,6 +69,10 @@ typedef struct {
   uint8_t  sr;                      // 11
   uint32_t pc;                      // 12
 } register_t;
+
+uint8_t  sr_save;
+
+#define I_BIT   4
 
 // Breakpoint address type */
 typedef __far uint8_t * address_t;
@@ -131,10 +139,16 @@ static breakpoint_t breakpoint[BREAKPOINTS];
 
 static unsigned breakpointCount = 0;
 
-static void insertBreakpoints ()
+static breakpoint_t stepBreakpoint = { .active = true };
+
+#if ! defined (__CALYPSI_TARGET_68000__)
+bool singleStepping = false;
+#endif
+
+static void insertBreakpoints (breakpoint_t *breakpoint, unsigned count)
 {
   unsigned sofar = 0;
-  for (unsigned i = 0; sofar < breakpointCount; i++)
+  for (unsigned i = 0; sofar < count; i++)
     {
       if (breakpoint[i].active)
         {
@@ -146,10 +160,10 @@ static void insertBreakpoints ()
     }
 }
 
-static void removeBreakpoints ()
+static void removeBreakpoints (breakpoint_t *breakpoint, unsigned count)
 {
   unsigned sofar = 0;
-  for (unsigned i = 0; sofar < breakpointCount; i++)
+  for (unsigned i = 0; sofar < count; i++)
     {
       if (breakpoint[i].active)
         {
@@ -350,20 +364,40 @@ static void signalPacket (unsigned sigval)
  */
 void handleException (unsigned sigval)
 {
-  int stepping;
+#if defined (__CALYPSI_TARGET_68000__)
+  int stepping = 0;
+#endif
   size_t length;
   long lvalue;
   address_t addr;
   char *ptr;
   int newPC;
 
+  // Clear any breakpoints placed in the code
+#if defined (__CALYPSI_TARGET_68000__)
+  removeBreakpoints(breakpoint, breakpointCount);
+#else
+  if (singleStepping)
+    {
+      removeBreakpoints(&stepBreakpoint, 1);
+#if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
+      registers.sr = (sr_save & I_BIT) | (registers.sr & ~I_BIT);
+#endif
+      singleStepping = false;
+      if (sigval == 19)
+        {
+          sigval = 5;   // say we did a trace trap
+        }
+    }
+  else
+    {
+      removeBreakpoints(breakpoint, breakpointCount);
+    }
+#endif
+
   /* reply to host that an exception has occurred */
   signalPacket(sigval);
   putpacket(remcomOutBuffer);
-
-  stepping = 0;
-
-  removeBreakpoints();
 
   while (1 == 1)
     {
@@ -502,10 +536,42 @@ illegal_binary_char:
 #endif
           break;
 
+#if ! defined (__CALYPSI_TARGET_68000__)
+          /*
+           * The step command is deprecated in the gdbserver protocol.
+           * For targets without a proper step mode we read one
+           * address for the next stop point and use temporary
+           * breakpoints there.
+           * The idea is to then issue a 'go' with interrupts disabled as
+           * it is expected that we stop immediately.
+           */
+        case 's':
+          if (hexToLongInt(&ptr, &lvalue))
+            {
+              stepBreakpoint.address = (address_t) lvalue;
+
+             // active the temporary breakpoints
+              insertBreakpoints(&stepBreakpoint, 1);
+
+                  // disable interrupts
+#if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
+              sr_save = registers.sr;
+              registers.sr |= I_BIT;
+#endif
+              // say that we are stepping
+              singleStepping = true;
+
+              continueExecution(&registers);  /* this is a jump */
+            }
+          break;
+#endif
+
           /* cAA..AA    Continue at address AA..AA(optional) */
           /* sAA..AA   Step one instruction from AA..AA(optional) */
+#if defined (__CALYPSI_TARGET_68000__)
         case 's':
           stepping = 1;
+#endif
         case 'c':
           /* try to read optional parameter, pc unchanged if no parm */
           if (hexToLongInt(&ptr, &lvalue))
@@ -614,12 +680,12 @@ illegal_binary_char:
               frame = 0;        /* null so _return... will properly initialize it */
             }
 
-          insertBreakpoints();
+          insertBreakpoints(breakpoint, breakpointCount);
           _returnFromException(frame);   /* this is a jump */
 #else
           // For targets without exception frames, insert user
           // breakpoints, restore registers and start execution.
-          insertBreakpoints();
+          insertBreakpoints(breakpoint, breakpointCount);
           continueExecution(&registers);  /* this is a jump */
 #endif
 
