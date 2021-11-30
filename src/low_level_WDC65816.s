@@ -4,6 +4,9 @@
 #define UART_TRHB UART_BASE
 #define UART_LSR  (UART_BASE + 5)
 
+#define INT_PENDING_REG1 0x000141
+#define FNX1_INT04_COM1 0x10
+
               .public breakHandler, continueExecution, uartInterrupt
               .extern handleException, origIRQVector, registers
               .extern _DirectPageStart
@@ -22,6 +25,10 @@ uartInterrupt:
               lsr     a             ; data available?
               bcc     100$          ; no
               lda     long:UART_TRHB
+              xba
+              lda     #FNX1_INT04_COM1
+              sta     long:INT_PENDING_REG1
+              xba
               cmp     #3            ; Ctrl-C?
               bne     100$          ; no, ignore it
               pla

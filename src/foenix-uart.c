@@ -42,6 +42,7 @@ extern void uartInterrupt();
 #define UART_IER  *(volatile __far char*)(UART_BASE + 1)    // Interupt Enable Register
 #define UART_FCR  *(volatile __far char*)(UART_BASE + 2)    // FIFO Control Register
 #define UART_LCR  *(volatile __far char*)(UART_BASE + 3)    // Line Control Register
+#define UART_MCR  *(volatile __far char*)(UART_BASE + 4)    // Modem Control Register
 #define UART_LSR  *(volatile __far char*)(UART_BASE + 5)    // Line Status Register
 
 #define UINT_DATA_AVAIL 1       // Enable Recieve Data Available interupt
@@ -52,6 +53,16 @@ extern void uartInterrupt();
 #define LCR_STOPBIT_1   0
 #define LCR_DATABITS_8  3
 #define LCR_DLB         0x80
+
+#define MCR_DTR     1
+#define MCR_RTS     2
+#define MCR_OUT1    4
+#define MCR_OUT2    8
+#define MCR_TEST   16
+
+#define INT_MASK_REG1 *(volatile __far char*)(0x00014D)
+
+#define FNX1_INT04_COM1 0x10
 
 #define BRK_VECTOR    *(void**) 0x00ffe6
 #define IRQ_VECTOR    *(void**) 0x00ffee
@@ -89,9 +100,23 @@ void initialize(void)
 //  UART_FCR = 0b11100001; // enable FIFO
   UART_FCR = 0b10000111; // enable FIFO
 
-  // Enable interrupt when receiving data
-//  UART_IER = UINT_DATA_AVAIL;
   UART_IER = 0;   // polled mode used when in control
+
+  UART_MCR = MCR_DTR | MCR_RTS;
+}
+
+void enableSerialInterrupt (void)
+{
+  UART_IER = UINT_DATA_AVAIL;
+  UART_MCR |= MCR_OUT2;
+  INT_MASK_REG1 &= ~FNX1_INT04_COM1;
+}
+
+void disableSerialInterrupt (void)
+{
+  UART_IER = 0;
+  UART_MCR &= ~MCR_OUT2;
+  INT_MASK_REG1 |= FNX1_INT04_COM1;
 }
 
 char getDebugChar(void)

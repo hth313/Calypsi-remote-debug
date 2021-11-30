@@ -384,6 +384,7 @@ void handleException (unsigned sigval)
 
   // Clear any breakpoints placed in the code
 #if defined (__CALYPSI_TARGET_68000__)
+  disableSerialInterrupt();
   removeBreakpoints(breakpoint, breakpointCount);
 #else
   if (singleStepping)
@@ -400,6 +401,7 @@ void handleException (unsigned sigval)
     }
   else
     {
+      disableSerialInterrupt();
       removeBreakpoints(breakpoint, breakpointCount);
     }
 #endif
@@ -690,11 +692,13 @@ illegal_binary_char:
             }
 
           insertBreakpoints(breakpoint, breakpointCount);
+          enableSerialInterrupt();        /* allow ctrl-c */
           _returnFromException(frame);   /* this is a jump */
 #else
           // For targets without exception frames, insert user
           // breakpoints, restore registers and start execution.
           insertBreakpoints(breakpoint, breakpointCount);
+          enableSerialInterrupt();        /* allow ctrl-c */
           continueExecution(&registers);  /* this is a jump */
 #endif
 
