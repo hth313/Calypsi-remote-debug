@@ -16,8 +16,8 @@ breakHandler:
 toMonitor:    jmp     handleException
 
 uartInterrupt:
-              pha
               sep     #0x20         ; 8 bits data
+              pha
               lda     long:UART_LSR
               lsr     a             ; data available?
               bcc     100$          ; no
