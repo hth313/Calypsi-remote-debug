@@ -173,6 +173,15 @@ static void removeBreakpoints (breakpoint_t *breakpoint, unsigned count)
     }
 }
 
+static void clearAllBreakpoints ()
+{
+  for (unsigned i = 0; i < BREAKPOINTS; i++)
+    {
+      breakpoint[i].active = false;
+    }
+  breakpointCount = 0;
+}
+
 int hex (char ch)
 {
   if ((ch >= 'a') && (ch <= 'f'))
@@ -693,7 +702,18 @@ illegal_binary_char:
 
           /* kill the program */
         case 'k':               /* do nothing */
+          continue;             /* give no reply */
+
+          /* enable extended mode, this is used to allow debugger to */
+          /* use the 'R' restart packet. */
+        case '!':
+          strcpy(remcomOutBuffer, "OK");
           break;
+
+          /* Restart target.  */
+        case 'R':
+          clearAllBreakpoints();
+          continue;    /* no reply */
 
           /* ‘Z0,addr,kind insert a breakpoint */
         case 'Z':
