@@ -10,10 +10,10 @@ obj/%.o: %.s
 obj/%.o: %.c
 	cc65816 --data-model=small --code-model=small --list-file=$(@:%.o=%.lst) -o $@ $<
 
-all: agent.hex
+all: agent-U.hex
 
-agent.hex: $(OBJS)
-	ln65816 --list-file=agent.lst --cross-reference -o $@ $^ agent.scm clib-sc-sd.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
+agent-U.hex: $(OBJS)
+	ln65816 --list-file=agent-U.lst --cross-reference -o $@ $^ agent-U.scm clib-sc-sd.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
 
 clean:
-	-rm $(OBJS) obj/*.lst agent.hex
+	-rm $(OBJS) obj/*.lst agent-U.hex
