@@ -1,5 +1,4 @@
-Calypsi remote debug agent
-==========================
+# Calypsi remote debug agent
 
 This is a remote debug monitor or agent, implementing part of the gdbserver
 protocol intended to be used with the Calypsi C compiler.
@@ -9,7 +8,7 @@ Currently there is support for the C256 Foenix U/U+ with a WDC65816.
 Porting to other boards should be fairly straightforward by replacing
 the low level communication functions.
 
-# Configure the port
+## Configure the port
 
 On Linux you can use `dmesg` to figure out the serial port used on
 your host computer:
@@ -41,12 +40,12 @@ Once you installed ans started the debugger agent you can verify that
 it is running and both ends are properly configured by pressing a
 key. The agent should respond with `$S13#b7`.
 
-# Protocol snooping
+## Protocol snooping
 
 When working with the debugger agent it can be useful to be able to
 see the communications going on. You can use the
-[interceptty` program](https://github.com/geoffmeyers/interceptty)
-program for this.
+[interceptty program](https://github.com/geoffmeyers/interceptty)
+for this.
 
 Once installed you can start it using:
 
