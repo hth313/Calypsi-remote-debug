@@ -1,4 +1,8 @@
 */obj/*.lst
 */obj/*.o
+*/*/obj/*.lst
+/**/obj/*.o
 */agent
 */agent.*
+*/agent-U.*
+agent-hb68k08.*
