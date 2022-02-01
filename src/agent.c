@@ -336,19 +336,18 @@ address_t hex2mem (char *buf, address_t mem, size_t count)
 /* WHILE WE FIND NICE HEX CHARS, BUILD AN INT */
 /* RETURN NUMBER OF CHARS PROCESSED           */
 /**********************************************/
-int hexToLongInt (char **ptr, long *value)
+int hexToLongInt (char **ptr, long *pvalue)
 {
   int numChars = 0;
   int hexValue;
-
-  *value = 0;
+  long value = 0;
 
   while (**ptr)
     {
       hexValue = hex(**ptr);
       if (hexValue >= 0)
         {
-          *value = (*value << 4) | hexValue;
+          value = (value << 4) | hexValue;
           numChars++;
         }
       else
@@ -357,6 +356,7 @@ int hexToLongInt (char **ptr, long *value)
       (*ptr)++;
     }
 
+  *pvalue = value;
   return numChars;
 }
 
