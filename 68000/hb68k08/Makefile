@@ -13,7 +13,7 @@ obj/%.o: %.c
 all: agent-hb68k08.hex
 
 agent-hb68k08.hex: $(OBJS)
-	ln68k --list-file=agent.lst --cross-reference -o $@ $^ agent-hb68k08.scm clib-68000-sc-ld.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
+	ln68k --list-file=agent-hb68k08.lst --cross-reference -o $@ $^ agent-hb68k08.scm clib-68000-sc-ld.a --rtattr exit=simplified --output-format intel-hex --heap-size=0 --stack-size=0x0400
 
 clean:
 	-rm $(OBJS) obj/*.lst agent-hb68k08.hex
