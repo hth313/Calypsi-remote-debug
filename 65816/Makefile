@@ -5,7 +5,7 @@ C_SRCS = agent.c foenix-uart.c
 OBJS = $(ASM_SRCS:%.s=obj/%.o) $(C_SRCS:%.c=obj/%.o)
 
 obj/%.o: %.s
-	as65816 -D__CALYPSI_DATA_MODEL_SMALL__ --list-file=$(@:%.o=%.lst) -o $@ $<
+	as65816 --data-model=small --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%.o: %.c
 	cc65816 --data-model=small --code-model=small -O2 --list-file=$(@:%.o=%.lst) -o $@ $<
