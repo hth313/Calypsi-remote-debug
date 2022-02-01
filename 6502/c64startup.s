@@ -10,16 +10,26 @@
               .extern main, exit
               .extern _Vsp, _Zp
 
+              .public __program_root_section, __program_start
+
+#ifdef AS_BASIC_ROM_REPLACEMENT
+              .section programStart
+__program_root_section:
+              .word   __program_start ; cold start vector
+              .word   __program_start ; warm start vector
+#endif
+
+#ifdef AS_PRG_STYLE
               .section programStart ; to be at address 0x801
               .word   nextLine
               .word   10            ; line number
               .byte   0x9e, " 2062", 0 ; SYS 2062
 nextLine:     .word   0             ; end of program
+#endif
 
-              .section programStart
-              .public __calypsi_entry, __program_start
-__calypsi_entry:
 __program_start:
+              ldx     #0xff
+              txs
               lda     #.byte0(.sectionEnd cstack)
               sta     zp:_Vsp
               lda     #.byte1(.sectionEnd cstack)
@@ -67,8 +77,10 @@ __call_heap_initialize:
               jsr     __heap_initialize
 
               .section programStart, root, noreorder
+#ifdef AS_PRG_STYLE
               tsx
               stx     _InitialStack ; for exit()
+#endif
               lda     #0            ; argc = 0
               sta     zp:_Zp
               sta     zp:_Zp+1
@@ -82,7 +94,9 @@ __call_heap_initialize:
 ;;;
 ;;; ***************************************************************************
 
+#ifdef AS_PRG_STYLE
               .section zdata, bss
               .public _InitialStack
 _InitialStack:
               .space  1
+#endif

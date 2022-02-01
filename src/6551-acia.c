@@ -9,8 +9,8 @@
 #define ACIA_COMMAND   *(volatile char*)(ACIA_BASE + 2)
 #define ACIA_CONTROL   *(volatile char*)(ACIA_BASE + 3)
 
-extern void* interruptHandler;
-extern void* breakHandler;
+extern void interruptHandler();
+extern void breakHandler();
 
 #define IRQ_VECTOR   (*(void**)0x314)
 #define BREAK_VECTOR (*(void**)0x316)
@@ -34,7 +34,16 @@ void initialize(void)
   BREAK_VECTOR = breakHandler;
 
   ACIA_CONTROL = 0x1f;   // baud rate generator, 8n1, 19200
-  ACIA_COMMAND = 2;      // enable Ctrl-C interrupts
+}
+
+void enableSerialInterrupt (void)
+{
+  ACIA_COMMAND = 0;
+}
+
+void disableSerialInterrupt (void)
+{
+  ACIA_COMMAND = 2;
 }
 
 char getDebugChar(void)
