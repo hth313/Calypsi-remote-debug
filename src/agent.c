@@ -84,7 +84,13 @@ typedef uint8_t backing_t;
 
 /************************************************************************/
 
-#ifdef __CALYPSI_TARGET_M68K__
+//
+#if defined(__CALYPSI_TARGET_M68K__) && !defined(__CALYPSI_TARGET_68000__)
+#define __CALYPSI_TARGET_68000__
+#endif
+
+#ifdef __CALYPSI_TARGET_68000__
+
 #include <intrinsics68000.h>
 
 #ifdef __CALYPSI_TARGET_SYSTEM_FOENIX__
@@ -108,7 +114,31 @@ typedef uint16_t backing_t;
 
 #define BREAK_OPCODE 0x4848
 
-#endif // __CALYPSI_TARGET_M68K__
+#ifdef __CALYPSI_CORE_68020__
+/* the size of the exception stack on the 68020 varies with the type of
+ * exception.  The following table is the number of WORDS used
+ * for each exception format.
+ */
+static const short exceptionSize[] = { 4,4,6,4,4,4,4,4,29,10,16,46,12,4,4,4 };
+#endif
+
+#ifdef __CALYPSI_CORE_68332__
+static const short exceptionSize[] = { 4,4,6,4,4,4,4,4,4,4,4,4,16,4,4,4 };
+#endif
+
+typedef void (*handler_t)(void);
+
+#define exceptionTable (* (handler_t *volatile *) 0)
+
+extern handler_t _catchException;
+extern handler_t _debug_level7;
+
+static void exceptionHandler (unsigned n, handler_t handler)
+{
+  exceptionTable[n] = handler;
+}
+
+#endif // __CALYPSI_TARGET_68000__
 
 /************************************************************************/
 
@@ -360,6 +390,102 @@ int hexToLongInt (char **ptr, long *pvalue)
   return numChars;
 }
 
+
+#if defined (__CALYPSI_TARGET_68000__)
+/* a bus error has occurred, perform a longjmp
+   to return execution and allow handling of the error */
+static void handle_buserror ()
+{
+  longjmp (remcomEnv, 1);
+}
+
+/* this function takes the 68000 exception number and attempts to
+   translate this number into a unix compatible signal value */
+static int computeSignal (int exceptionVector)
+{
+  int sigval;
+  switch (exceptionVector)
+    {
+    case 2:
+      sigval = 10;
+      break;                    /* bus error           */
+    case 3:
+      sigval = 10;
+      break;                    /* address error       */
+    case 4:
+      sigval = 4;
+      break;                    /* illegal instruction */
+    case 5:
+      sigval = 8;
+      break;                    /* zero divide         */
+    case 6:
+      sigval = 8;
+      break;                    /* chk instruction     */
+    case 7:
+      sigval = 8;
+      break;                    /* trapv instruction   */
+    case 8:
+      sigval = 11;
+      break;                    /* privilege violation */
+    case 9:
+      sigval = 5;
+      break;                    /* trace trap          */
+    case 10:
+      sigval = 4;
+      break;                    /* line 1010 emulator  */
+    case 11:
+      sigval = 4;
+      break;                    /* line 1111 emulator  */
+
+      /* Coprocessor protocol violation.  Using a standard MMU or FPU
+         this cannot be triggered by software.  Call it a SIGBUS.  */
+    case 13:
+      sigval = 10;
+      break;
+
+    case 31:
+      sigval = 2;
+      break;                    /* interrupt           */
+    case 33:
+      sigval = 5;
+      break;                    /* breakpoint          */
+
+      /* This is a trap #8 instruction.  Apparently it is someone's software
+         convention for some sort of SIGFPE condition.  Whose?  How many
+         people are being screwed by having this code the way it is?
+         Is there a clean solution?  */
+    case 40:
+      sigval = 8;
+      break;                    /* floating point err  */
+
+    case 48:
+      sigval = 8;
+      break;                    /* floating point err  */
+    case 49:
+      sigval = 8;
+      break;                    /* floating point err  */
+    case 50:
+      sigval = 8;
+      break;                    /* zero divide         */
+    case 51:
+      sigval = 8;
+      break;                    /* underflow           */
+    case 52:
+      sigval = 8;
+      break;                    /* operand error       */
+    case 53:
+      sigval = 8;
+      break;                    /* overflow            */
+    case 54:
+      sigval = 8;
+      break;                    /* NAN                 */
+    default:
+      sigval = 7;               /* "software generated" */
+    }
+  return (sigval);
+}
+#endif
+
 static void signalPacket (unsigned sigval)
 {
   remcomOutBuffer[0] = 'S';
@@ -461,7 +587,9 @@ void handleException (unsigned sigval)
             {
               exceptionHandler(2, _catchException);
               strcpy(remcomOutBuffer, "E03");
-              debug_error("bus error");
+#if DEBUG
+             debug_error("bus error");
+#endif
             }
 
           /* restore handler for bus error */
@@ -594,23 +722,24 @@ illegal_binary_char:
 
 #if defined (__CALYPSI_TARGET_68000__)
           /* clear the trace bit */
-          registers[PS] &= 0x7fff;
+          registers.sr &= 0x7fff;
 
           /* set the trace bit if we're stepping */
           if (stepping)
-            registers[PS] |= 0x8000;
+            registers.sr |= 0x8000;
 #endif
 
+#ifdef __68000_FRAME__
           /*
            * look for newPC in the linked list of exception frames.
            * if it is found, use the old frame it.  otherwise,
            * fake up a dummy frame in returnFromException().
            */
-#if defined(__CALYPSI_TARGET_68000__)
 #if DEBUG
           if (remote_debug)
             printf ("new pc = 0x%x\n", newPC);
 #endif
+
           frame = lastFrame;
           while (frame)
             {
@@ -690,17 +819,13 @@ illegal_binary_char:
               lastFrame = frame;
               frame = 0;        /* null so _return... will properly initialize it */
             }
+#endif // __68000_FRAME__
 
-          insertBreakpoints(breakpoint, breakpointCount);
-          enableSerialInterrupt();        /* allow ctrl-c */
-          _returnFromException(frame);   /* this is a jump */
-#else
           // For targets without exception frames, insert user
           // breakpoints, restore registers and start execution.
           insertBreakpoints(breakpoint, breakpointCount);
           enableSerialInterrupt();        /* allow ctrl-c */
           continueExecution(&registers);  /* this is a jump */
-#endif
 
           break;
 
@@ -794,6 +919,21 @@ illegal_binary_char:
 
 int main ()
 {
+#if defined (__CALYPSI_TARGET_68000__)
+  for (unsigned exception = 2; exception <= 23; exception++)
+    exceptionHandler (exception, _catchException);
+
+  /* level 7 interrupt              */
+  exceptionHandler (31, _debug_level7);
+
+  /* breakpoint exception (trap #1) */
+  exceptionHandler (33, _catchException);
+
+  /* 48 to 54 are floating point coprocessor errors */
+  for (unsigned exception = 48; exception <= 54; exception++)
+    exceptionHandler (exception, _catchException);
+#endif  // __CALYPSI_TARGET_68000__
+
   initialize();
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();
