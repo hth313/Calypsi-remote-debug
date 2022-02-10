@@ -55,7 +55,7 @@ char getDebugChar(void)
 
 void putDebugChar(char c)
 {
-  while ((ACIA_STATUS & 0x10) != 0)
+  while ((ACIA_STATUS & 0x10) == 0)
     ;
   ACIA_DATA = c;
 }
