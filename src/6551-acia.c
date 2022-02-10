@@ -1,5 +1,6 @@
-// 6551 ACIA SwiftLink style for C64
+// 6551 ACIA SwiftLink style for the Commodore 64
 
+#include <stdint.h>
 #include "api.h"
 #include <intrinsics6502.h>
 
@@ -33,7 +34,26 @@ void initialize(void)
   // Insert our own BRK vector
   BREAK_VECTOR = breakHandler;
 
-  ACIA_CONTROL = 0x1f;   // baud rate generator, 8n1, 19200
+  // baud rate generator, 8n1, 19200 in standard and 38400 in SwiftLink mode
+  ACIA_CONTROL = 0x1f;
+
+#ifdef COMMODORE_64
+  static const char signon[] = "CALYPSI DEBUG AGENT ($A000-$BFFF ROM)         SWIFTLINK/6551 VER 1.0.0";
+  char* p = (char*)(0x400 + 40 + 1);
+  for (uint8_t i = 0; signon[i] != 0; ++i)
+    {
+      char c = signon[i];
+      if (c >= 'A')
+        *p++ = c - 64;
+      else
+        *p++ = c;
+    }
+
+  // Change border to pink
+  *(char*)53280 = 4;
+#endif
+
+  ACIA_DATA = 'A';
 }
 
 void enableSerialInterrupt (void)
