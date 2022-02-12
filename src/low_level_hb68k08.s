@@ -40,16 +40,16 @@ saveRegisters:
 saveRegisters10:
               move.l  usp,a0
               move.l  a0,registers+64.l
-              move.l  4(sp),registers+68.l
-              move.w  6(sp),registers+72.l
+              move.l  6(sp),registers+68.l
+              move.w  4(sp),registers+72.l
               rts
 
 continueExecution:
               move.l  registers+64.l,a0
               move.l  a0,usp
               movem.l registers.l,d0-d7/a0-a7
-              move.l  registers+68.l,(sp)
-              move.w  registers+72.l,2(sp)
+              move.l  registers+68.l,2(sp)
+              move.w  registers+72.l,(sp)
               rte
 
 _catchException:
