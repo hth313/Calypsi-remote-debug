@@ -137,6 +137,8 @@ extern vector_entry_t exceptionTable[];
 
 extern handler_t _catchException;
 extern handler_t _debug_level7;
+extern handler_t traceHandler;
+extern handler_t illegalHandler;
 
 #define jsr 0x4eb9
 #define jmp 0x4ef9
@@ -944,8 +946,11 @@ int main ()
   /* level 7 interrupt              */
   exceptionHandler (31, jsr, _debug_level7);
 
-  /* breakpoint exception (trap #1) */
-  exceptionHandler (33, jsr, _catchException);
+  /* breakpoint exception (BKPT issues an illegal instruction */
+  exceptionHandler (4, jmp, illegalHandler);
+
+  /* single step  */
+  exceptionHandler (9, jmp, traceHandler);
 
   /* 48 to 54 are floating point coprocessor errors */
   for (unsigned exception = 48; exception <= 54; exception++)
