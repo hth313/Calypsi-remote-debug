@@ -1,5 +1,7 @@
 #define USART_BASE  0x0E0000
 #define UDR         USART_BASE + 0x2f
+#define BREAK_OPCODE 0x4848
+
               .section nearcode
               .extern registers, handleException, computeSignal
               .public illegalHandler, continueExecution, traceHandler
@@ -7,6 +9,15 @@
 
 ;;; BKPT and malformed intructions come here
 illegalHandler:
+              movem.l d0/a0,-(sp)
+              move.l  10(sp),a0
+              move.w  (a0),d0
+              cmp.w   #BREAK_OPCODE,d0
+              beq     10$
+              movem.l (sp)+,d0/a0
+              move.l  #exceptionTable + (4 + 1) * 6, -(sp)
+              bra.s   _catchException
+10$:          movem.l (sp)+,d0/a0
 traceHandler:
               bsr.s   saveRegisters
               moveq.l #19,d0
