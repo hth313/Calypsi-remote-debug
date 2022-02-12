@@ -955,6 +955,8 @@ int main ()
   initialize();
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();
+#elif  defined(__CALYPSI_TARGET_68000__)
+  __break_instruction(0);
 #endif
   return 0;
 }
