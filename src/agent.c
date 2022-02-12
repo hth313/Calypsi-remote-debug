@@ -128,14 +128,30 @@ static const short exceptionSize[] = { 4,4,6,4,4,4,4,4,4,4,4,4,16,4,4,4 };
 
 typedef void (*handler_t)(void);
 
-#define exceptionTable (* (handler_t *volatile *) 0)
+typedef struct vector_entry {
+  uint16_t   opcode;
+  handler_t  dest;
+} vector_entry_t;
+
+extern vector_entry_t exceptionTable[];
 
 extern handler_t _catchException;
 extern handler_t _debug_level7;
 
-static void exceptionHandler (unsigned n, handler_t handler)
+#define jsr 0x4eb9
+#define jmp 0x4ef9
+
+static void exceptionHandler (unsigned n, uint16_t call, handler_t handler)
 {
-  exceptionTable[n] = handler;
+  // Point to entry in relay table
+  vector_entry_t *p = &exceptionTable[n - 2];
+
+  // Set the real vector to point to the relay table
+  *(handler_t**)(n * 4) = (handler_t*)p;
+
+  // Set instruction in relay table
+  p->opcode = call;
+  p->dest   = handler;
 }
 
 #endif // __CALYPSI_TARGET_68000__
@@ -399,54 +415,56 @@ static void handle_buserror ()
   longjmp (remcomEnv, 1);
 }
 
-/* this function takes the 68000 exception number and attempts to
-   translate this number into a unix compatible signal value */
-static int computeSignal (int exceptionVector)
+/* this function takes the 68000 exception number expressed as a table
+   offset and attempts to translate this number into a unix compatible
+   signal value */
+int computeSignal (int exceptionVector)
 {
+#define EXC(n)  ((n - 2) * 6)
   int sigval;
   switch (exceptionVector)
     {
-    case 2:
+    case EXC(2):
       sigval = 10;
       break;                    /* bus error           */
-    case 3:
+    case EXC(3):
       sigval = 10;
       break;                    /* address error       */
-    case 4:
+    case EXC(4):
       sigval = 4;
       break;                    /* illegal instruction */
-    case 5:
+    case EXC(5):
       sigval = 8;
       break;                    /* zero divide         */
-    case 6:
+    case EXC(6):
       sigval = 8;
       break;                    /* chk instruction     */
-    case 7:
+    case EXC(7):
       sigval = 8;
       break;                    /* trapv instruction   */
-    case 8:
+    case EXC(8):
       sigval = 11;
       break;                    /* privilege violation */
-    case 9:
+    case EXC(9):
       sigval = 5;
       break;                    /* trace trap          */
-    case 10:
+    case EXC(10):
       sigval = 4;
       break;                    /* line 1010 emulator  */
-    case 11:
+    case EXC(11):
       sigval = 4;
       break;                    /* line 1111 emulator  */
 
       /* Coprocessor protocol violation.  Using a standard MMU or FPU
          this cannot be triggered by software.  Call it a SIGBUS.  */
-    case 13:
+    case EXC(13):
       sigval = 10;
       break;
 
-    case 31:
+    case EXC(31):
       sigval = 2;
       break;                    /* interrupt           */
-    case 33:
+    case EXC(33):
       sigval = 5;
       break;                    /* breakpoint          */
 
@@ -454,29 +472,29 @@ static int computeSignal (int exceptionVector)
          convention for some sort of SIGFPE condition.  Whose?  How many
          people are being screwed by having this code the way it is?
          Is there a clean solution?  */
-    case 40:
+    case EXC(40):
       sigval = 8;
       break;                    /* floating point err  */
 
-    case 48:
+    case EXC(48):
       sigval = 8;
       break;                    /* floating point err  */
-    case 49:
+    case EXC(49):
       sigval = 8;
       break;                    /* floating point err  */
-    case 50:
+    case EXC(50):
       sigval = 8;
       break;                    /* zero divide         */
-    case 51:
+    case EXC(51):
       sigval = 8;
       break;                    /* underflow           */
-    case 52:
+    case EXC(52):
       sigval = 8;
       break;                    /* operand error       */
-    case 53:
+    case EXC(53):
       sigval = 8;
       break;                    /* overflow            */
-    case 54:
+    case EXC(54):
       sigval = 8;
       break;                    /* NAN                 */
     default:
@@ -563,7 +581,7 @@ void handleException (unsigned sigval)
           if (setjmp(remcomEnv) == 0)
             {
 #if defined (__CALYPSI_TARGET_68000__)
-              exceptionHandler(2, handle_buserror);
+              exceptionHandler(2, jmp, handle_buserror);
 #endif
               /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
               if (hexToLongInt(&ptr, &lvalue))
@@ -585,7 +603,7 @@ void handleException (unsigned sigval)
 #if defined (__CALYPSI_TARGET_68000__)
           else
             {
-              exceptionHandler(2, _catchException);
+              exceptionHandler(2, jsr, _catchException);
               strcpy(remcomOutBuffer, "E03");
 #if DEBUG
              debug_error("bus error");
@@ -593,7 +611,7 @@ void handleException (unsigned sigval)
             }
 
           /* restore handler for bus error */
-          exceptionHandler(2, _catchException);
+          exceptionHandler(2, jsr, _catchException);
 #endif
           break;
 
@@ -639,7 +657,7 @@ illegal_binary_char:
           if (setjmp(remcomEnv) == 0)
             {
 #if defined (__CALYPSI_TARGET_68000__)
-              exceptionHandler(2, handle_buserror);
+              exceptionHandler(2, jmp, handle_buserror);
 #endif
               /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
               if (    hexToLongInt(&ptr, &lvalue)
@@ -663,7 +681,7 @@ illegal_binary_char:
 #if defined (__CALYPSI_TARGET_68000__)
           else
             {
-              exceptionHandler(2, _catchException);
+              exceptionHandler(2, jsr, _catchException);
               strcpy(remcomOutBuffer, "E03");
 #if DEBUG
               debug_error("bus error");
@@ -671,7 +689,7 @@ illegal_binary_char:
             }
 
           /* restore handler for bus error */
-          exceptionHandler(2, _catchException);
+          exceptionHandler(2, jsr, _catchException);
 #endif
           break;
 
@@ -921,17 +939,17 @@ int main ()
 {
 #if defined (__CALYPSI_TARGET_68000__)
   for (unsigned exception = 2; exception <= 23; exception++)
-    exceptionHandler (exception, _catchException);
+    exceptionHandler (exception, jsr, _catchException);
 
   /* level 7 interrupt              */
-  exceptionHandler (31, _debug_level7);
+  exceptionHandler (31, jsr, _debug_level7);
 
   /* breakpoint exception (trap #1) */
-  exceptionHandler (33, _catchException);
+  exceptionHandler (33, jsr, _catchException);
 
   /* 48 to 54 are floating point coprocessor errors */
   for (unsigned exception = 48; exception <= 54; exception++)
-    exceptionHandler (exception, _catchException);
+    exceptionHandler (exception, jsr, _catchException);
 #endif  // __CALYPSI_TARGET_68000__
 
   initialize();
