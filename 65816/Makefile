@@ -1,6 +1,6 @@
 VPATH = ../src
 ASM_SRCS = low_level_WDC65816.s
-C_SRCS = agent.c foenix-uart.c
+C_SRCS = agent.c c256-uart.c
 
 OBJS = $(ASM_SRCS:%.s=obj/%.o) $(C_SRCS:%.c=obj/%.o)
 
