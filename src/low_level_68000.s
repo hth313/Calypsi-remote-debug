@@ -1,5 +1,8 @@
+#ifdef HB68K08
 #define USART_BASE  0x0E0000
 #define UDR         USART_BASE + 0x2f
+#endif
+
 #define BREAK_OPCODE 0x4848
 
               .section nearcode
@@ -25,7 +28,9 @@ toMonitor:    jmp     handleException
 
 uartInterrupt:
               move.w  d0,-(sp)
+#ifdef HB68K08
               move.b  UDR.l,d0
+#endif
               cmp.b   #3,d0         ; Ctrl-C ?
               beq.s   10$
               move.w  (sp)+,d0      ; no, ignore it
