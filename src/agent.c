@@ -941,20 +941,20 @@ int main ()
 {
 #if defined (__CALYPSI_TARGET_68000__)
   for (unsigned exception = 2; exception <= 23; exception++)
-    exceptionHandler (exception, jsr, _catchException);
+    exceptionHandler(exception, jsr, _catchException);
 
   /* level 7 interrupt              */
-  exceptionHandler (31, jsr, _debug_level7);
+  exceptionHandler(31, jsr, _debug_level7);
 
   /* breakpoint exception (BKPT issues an illegal instruction */
-  exceptionHandler (4, jmp, illegalHandler);
+  exceptionHandler(4, jmp, illegalHandler);
 
   /* single step  */
-  exceptionHandler (9, jmp, traceHandler);
+  exceptionHandler(9, jmp, traceHandler);
 
   /* 48 to 54 are floating point coprocessor errors */
   for (unsigned exception = 48; exception <= 54; exception++)
-    exceptionHandler (exception, jsr, _catchException);
+    exceptionHandler(exception, jsr, _catchException);
 #endif  // __CALYPSI_TARGET_68000__
 
   initialize();
