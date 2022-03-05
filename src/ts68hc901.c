@@ -9,11 +9,12 @@
 #define RSR  *(uint8_t*)(USART_BASE + 0x2b) // receiver status register
 #define TSR  *(uint8_t*)(USART_BASE + 0x2d)
 
-#define TCDR *(uint16_t*)(USART_BASE + 0x23)
+#define TCDRHI *(uint8_t*)(USART_BASE + 0x23)
+#define TCDRLO *(uint8_t*)(USART_BASE + 0x25)
 
-#define GPIP *(uint32_t*)(USART_BASE + 0x01)
-#define IERB *(uint32_t*)(USART_BASE + 0x09)
-#define ISRB *(uint32_t*)(USART_BASE + 0x11)
+#define GPIP *(uint8_t*)(USART_BASE + 0x01)
+#define IERB *(uint8_t*)(USART_BASE + 0x09)
+#define ISRB *(uint8_t*)(USART_BASE + 0x11)
 
 #define B57600    0x0101
 #define B28800    0x0202
@@ -29,12 +30,15 @@
 
 void initialize(void)
 {
-#if 0
-  GPIP = 0;
-  IERB = 0;            // disable all interrupts
-  ISRB = 0;
-#endif
-  TCDR = B57600;       // 7.3728 MHz / 2 with Timer C & D -> 57600 bit/s
+  // disable all interrupts
+  uint8_t *p = &GPIP;
+  for (int i = 0; i < 12; i++, p += 2) {
+    *p = 0;
+  }
+
+  // 7.3728 MHz / 2 with Timer C & D -> 57600 bit/s
+  TCDRHI = (uint8_t) (B57600 >> 8);
+  TCDRLO = (uint8_t) B57600;
   UCR = DIV16 | ASYNC; // 8 bits, no parity, 1 stop, async, div by 16
   RSR = 1;             // enable receiver
   TSR = 1;             // enable transmitter
