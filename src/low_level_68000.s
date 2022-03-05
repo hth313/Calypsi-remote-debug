@@ -12,15 +12,14 @@
 
 ;;; BKPT and malformed intructions come here
 illegalHandler:
-              movem.l d0/a0,-(sp)
-              move.l  10(sp),a0
-              move.w  (a0),d0
-              cmp.w   #BREAK_OPCODE,d0
+              move.l  a0,-(sp)
+              move.l  6(sp),a0
+              cmp.w   #BREAK_OPCODE,(a0)
               beq     10$
-              movem.l (sp)+,d0/a0
+              move.l  (sp)+,a0
               move.l  #exceptionTable + (4 + 1) * 6, -(sp)
               bra.s   _catchException
-10$:          movem.l (sp)+,d0/a0
+10$:          move.l  (sp)+,a0
 traceHandler:
               bsr.s   saveRegisters
               moveq.l #19,d0
