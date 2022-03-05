@@ -135,10 +135,10 @@ typedef struct vector_entry {
 
 extern vector_entry_t exceptionTable[];
 
-extern handler_t _catchException;
-extern handler_t _debug_level7;
-extern handler_t traceHandler;
-extern handler_t illegalHandler;
+extern void _catchException(void);
+extern void _debug_level7(void);
+extern void traceHandler(void);
+extern void illegalHandler(void);
 
 #define jsr 0x4eb9
 #define jmp 0x4ef9
