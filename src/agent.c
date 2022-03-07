@@ -40,8 +40,11 @@ uint8_t  sr_save;
 
 #define I_BIT   4
 
+// Address type pointing to memory bytes.
+typedef uint8_t * address_t;
+
 // Breakpoint address type */
-typedef char * address_t;
+typedef uint8_t * bpaddress_t;
 typedef uint8_t backing_t;
 
 #define BREAK_OPCODE 0
@@ -74,8 +77,11 @@ uint8_t  sr_save;
 
 #define I_BIT   4
 
-// Breakpoint address type */
+// Address type pointing to memory bytes.
 typedef __far uint8_t * address_t;
+
+// Breakpoint address type */
+typedef __far uint8_t * bpaddress_t;
 typedef uint8_t backing_t;
 
 #define BREAK_OPCODE 0
@@ -108,8 +114,11 @@ typedef struct {
   uint16_t sr;                      // 72
 } register_t;
 
+// Address type pointing to memory bytes.
+typedef uint8_t * address_t;
+
 // Breakpoint address type */
-typedef uint16_t * address_t;
+typedef uint16_t * bpaddress_t;
 typedef uint16_t backing_t;
 
 #define BREAK_OPCODE 0x4848
@@ -178,9 +187,9 @@ static char remcomInBuffer[BUFMAX];
 static char remcomOutBuffer[BUFMAX];
 
 typedef struct breakpoint {
-  address_t address; // address of breakpoint
-  bool active;       // set when breakpoint active
-  backing_t store;   // store modified bytes in code
+  bpaddress_t address; // address of breakpoint
+  bool active;         // set when breakpoint active
+  backing_t store  ;   // store modified bytes in code
 } breakpoint_t;
 
 static breakpoint_t breakpoint[BREAKPOINTS];
@@ -200,7 +209,7 @@ static void insertBreakpoints (breakpoint_t *breakpoint, unsigned count)
     {
       if (breakpoint[i].active)
         {
-          address_t p = breakpoint[i].address;
+          bpaddress_t p = breakpoint[i].address;
           breakpoint[i].store = *p;
           *p = BREAK_OPCODE;
           sofar++;
@@ -580,9 +589,9 @@ void handleException (unsigned sigval)
 
           /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
         case 'm':
+#if defined (__CALYPSI_TARGET_68000__)
           if (setjmp(remcomEnv) == 0)
             {
-#if defined (__CALYPSI_TARGET_68000__)
               exceptionHandler(2, jmp, handle_buserror);
 #endif
               /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
@@ -601,8 +610,8 @@ void handleException (unsigned sigval)
                 {
                   strcpy(remcomOutBuffer, "E01");
                 }
-            }
 #if defined (__CALYPSI_TARGET_68000__)
+            }
           else
             {
               exceptionHandler(2, jsr, _catchException);
@@ -877,7 +886,7 @@ illegal_binary_char:
               if (   hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ',')
                 {
-                  address_t bpAddress = (address_t) lvalue;
+                  bpaddress_t bpAddress = (bpaddress_t) lvalue;
                   if (hexToLongInt(&ptr, &lvalue))
                     {
 //                      int kind = lvalue;
@@ -910,7 +919,7 @@ illegal_binary_char:
               if (   hexToLongInt(&ptr, &lvalue)
                   && *(ptr++) == ',')
                 {
-                  address_t bpAddress = (address_t) lvalue;
+                  bpaddress_t bpAddress = (bpaddress_t) lvalue;
                   if (hexToLongInt(&ptr, &lvalue))
                     {
 //                      int kind = lvalue;
