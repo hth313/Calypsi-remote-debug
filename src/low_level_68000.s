@@ -61,7 +61,7 @@ _catchException:
               move.l  (sp)+,d0
               sub.l   #exceptionTable,d0
               bsr.s   saveRegisters10
-              jsr     computeSignal
+              bsr.w   computeSignal
               bra.s   toMonitor
 
 ;;; * This function is called immediately when a level 7 interrupt occurs
