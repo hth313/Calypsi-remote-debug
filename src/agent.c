@@ -454,7 +454,7 @@ int computeSignal (int exceptionVector)
       sigval = 8;
       break;                    /* trapv instruction   */
     case EXC(8):
-      sigval = 11;
+      sigval = 4;
       break;                    /* privilege violation */
     case EXC(9):
       sigval = 5;
