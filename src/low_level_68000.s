@@ -46,15 +46,10 @@ saveRegisters10:
               move.l  a0,registers+64.l
               move.l  6(sp),registers+68.l
               move.w  4(sp),registers+72.l
-              rts
-
-continueExecution:
-              move.l  registers+64.l,a0
-              move.l  a0,usp
-              movem.l registers.l,d0-d7/a0-a7
-              move.l  registers+68.l,2(sp)
-              move.w  registers+72.l,(sp)
-              rte
+              btst.b  #5,4(sp)      ; are debugee in supervisor?
+              beq.s   10$           ; no
+              sub.l   #10,registers+60.l ; yes, adjust sstack
+10$:          rts
 
 _catchException:
               movem.l d0-d7/a0-a7,registers.l
@@ -63,6 +58,14 @@ _catchException:
               bsr.s   saveRegisters10
               bsr.w   computeSignal
               bra.s   toMonitor
+
+continueExecution:
+              move.l  registers+64.l,a0
+              move.l  a0,usp
+              movem.l registers.l,d0-d7/a0-a7
+              move.l  registers+68.l,-(sp)
+              move.w  registers+72.l,-(sp)
+              rte
 
 ;;; * This function is called immediately when a level 7 interrupt occurs
 ;;; * if the previous interrupt level was 7 then we're already servicing
