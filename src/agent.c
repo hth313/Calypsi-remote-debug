@@ -198,9 +198,7 @@ static unsigned breakpointCount = 0;
 
 static breakpoint_t stepBreakpoint = { .active = true };
 
-#if ! defined (__CALYPSI_TARGET_68000__)
 bool singleStepping = false;
-#endif
 
 static void insertBreakpoints (breakpoint_t *breakpoint, unsigned count)
 {
@@ -431,7 +429,7 @@ static void handle_buserror ()
    signal value */
 int computeSignal (int exceptionVector)
 {
-#define EXC(n)  ((n - 2) * 6)
+#define EXC(n)  ((n - 1) * 6)
   int sigval;
   switch (exceptionVector)
     {
@@ -511,7 +509,7 @@ int computeSignal (int exceptionVector)
     default:
       sigval = 7;               /* "software generated" */
     }
-  return (sigval);
+  return sigval;
 }
 #endif
 
@@ -528,9 +526,6 @@ static void signalPacket (unsigned sigval)
  */
 void handleException (unsigned sigval)
 {
-#if defined (__CALYPSI_TARGET_68000__)
-  int stepping = 0;
-#endif
   size_t length;
   long lvalue;
   address_t addr;
@@ -539,8 +534,14 @@ void handleException (unsigned sigval)
 
   // Clear any breakpoints placed in the code
 #if defined (__CALYPSI_TARGET_68000__)
-  disableSerialInterrupt();
-  removeBreakpoints(breakpoint, breakpointCount);
+  if (singleStepping)
+    {
+      singleStepping = false;
+      if (sigval == 19)
+        {
+          sigval = 5;   // say we did a trace trap
+        }
+    }
 #else
   if (singleStepping)
     {
@@ -554,12 +555,12 @@ void handleException (unsigned sigval)
           sigval = 5;   // say we did a trace trap
         }
     }
+#endif
   else
     {
       disableSerialInterrupt();
       removeBreakpoints(breakpoint, breakpointCount);
     }
-#endif
 
   /* reply to host that an exception has occurred */
   signalPacket(sigval);
@@ -718,10 +719,10 @@ illegal_binary_char:
             {
               stepBreakpoint.address = (address_t) lvalue;
 
-             // active the temporary breakpoints
+              // active the temporary breakpoints
               insertBreakpoints(&stepBreakpoint, 1);
 
-                  // disable interrupts
+              // disable interrupts
 #if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
               sr_save = registers.sr;
               registers.sr |= I_BIT;
@@ -738,7 +739,7 @@ illegal_binary_char:
           /* sAA..AA   Step one instruction from AA..AA(optional) */
 #if defined (__CALYPSI_TARGET_68000__)
         case 's':
-          stepping = 1;
+          singleStepping = true;
 #endif
         case 'c':
           /* try to read optional parameter, pc unchanged if no parm */
@@ -754,7 +755,7 @@ illegal_binary_char:
           registers.sr &= 0x7fff;
 
           /* set the trace bit if we're stepping */
-          if (stepping)
+          if (singleStepping)
             registers.sr |= 0x8000;
 #endif
 
@@ -852,8 +853,13 @@ illegal_binary_char:
 
           // For targets without exception frames, insert user
           // breakpoints, restore registers and start execution.
-          insertBreakpoints(breakpoint, breakpointCount);
-          enableSerialInterrupt();        /* allow ctrl-c */
+#if defined (__CALYPSI_TARGET_68000__)
+          if (!singleStepping)
+#endif
+            {
+              insertBreakpoints(breakpoint, breakpointCount);
+              enableSerialInterrupt();        /* allow ctrl-c */
+            }
           continueExecution(&registers);  /* this is a jump */
 
           break;
