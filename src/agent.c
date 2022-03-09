@@ -866,6 +866,11 @@ illegal_binary_char:
 
           /* kill the program */
         case 'k':               /* do nothing */
+#if defined (__CALYPSI_TARGET_68000__)
+          // Ensure that if we start again, the user program starts
+          // in supervisor mode for consistently.
+          registers.sr |= 0x2000;
+#endif
           continue;             /* give no reply */
 
           /* enable extended mode, this is used to allow debugger to */
