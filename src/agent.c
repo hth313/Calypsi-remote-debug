@@ -870,7 +870,9 @@ illegal_binary_char:
 #if defined (__CALYPSI_TARGET_68000__)
           // Ensure that if we start again, the user program starts
           // in supervisor mode for consistently.
-          registers.sr |= 0x2000;
+          // Also start with interrupts masked off as much as possible,
+          // which mimics the behavior of the 68000 at reset.
+          registers.sr |= 0x2700;
 #endif
           continue;             /* give no reply */
 
