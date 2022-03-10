@@ -16,6 +16,8 @@
 #define IERB *(uint8_t*)(USART_BASE + 0x09)
 #define ISRB *(uint8_t*)(USART_BASE + 0x11)
 
+#define VR *(uint8_t*)(USART_BASE + 0x17)
+
 #define B57600    0x0101
 #define B28800    0x0202
 #define B19200    0x0303
@@ -42,6 +44,9 @@ void initialize(void)
   UCR = DIV16 | ASYNC; // 8 bits, no parity, 1 stop, async, div by 16
   RSR = 1;             // enable receiver
   TSR = 1;             // enable transmitter
+
+  // TS68HC901 assign interrupts 64-95, UART receive is 64 + 12 = 76
+  VR = 0x40;
 }
 
 void enableSerialInterrupt (void)

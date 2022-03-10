@@ -148,6 +148,7 @@ extern void _catchException(void);
 extern void _debug_level7(void);
 extern void traceHandler(void);
 extern void illegalHandler(void);
+extern void uartInterrupt(void);
 
 #define jsr 0x4eb9
 #define jmp 0x4ef9
@@ -975,6 +976,11 @@ int main ()
   /* 48 to 54 are floating point coprocessor errors */
   for (unsigned exception = 48; exception <= 54; exception++)
     exceptionHandler(exception, jsr, _catchException);
+
+#if defined(HB68K08)
+  exceptionHandler(76, jmp, uartInterrupt);
+#endif // HB68K08
+
 #endif  // __CALYPSI_TARGET_68000__
 
   initialize();

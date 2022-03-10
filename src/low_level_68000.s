@@ -7,7 +7,7 @@
 
               .section nearcode
               .extern registers, handleException, computeSignal
-              .public illegalHandler, continueExecution, traceHandler
+              .public illegalHandler, continueExecution, traceHandler, uartInterrupt
               .public _catchException, _debug_level7
 
 ;;; BKPT and malformed intructions come here
