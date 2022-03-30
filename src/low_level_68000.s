@@ -1,7 +1,12 @@
 #ifdef HB68K08
 #define USART_BASE  0x0E0000
-#define UDR         USART_BASE + 0x2f
-#endif
+UDR:          .equ    USART_BASE + 0x2f
+#endif // HB68K08
+
+#ifdef A2560U
+#define UART_BASE  0XB00000
+UART_TRHB:    .equ    UART_BASE + 0x28f8
+#endif // A2560U
 
 #define BREAK_OPCODE 0x4848
 
@@ -29,6 +34,9 @@ uartInterrupt:
               move.w  d0,-(sp)
 #ifdef HB68K08
               move.b  UDR.l,d0
+#endif
+#ifdef A2560U
+              move.b  UART_TRHB.l,d0
 #endif
               cmp.b   #3,d0         ; Ctrl-C ?
               beq.s   10$
