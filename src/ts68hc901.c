@@ -15,6 +15,7 @@
 #define GPIP *(uint8_t*)(USART_BASE + 0x01)
 #define IERB *(uint8_t*)(USART_BASE + 0x09)
 #define ISRB *(uint8_t*)(USART_BASE + 0x11)
+#define IMRA *(uint8_t*)(USART_BASE + 0x13)
 
 #define VR *(uint8_t*)(USART_BASE + 0x17)
 
@@ -52,11 +53,13 @@ void initialize(void)
 void enableSerialInterrupt (void)
 {
   IERA |= 0x10;
+  IMRA |= 0x10;
 }
 
 void disableSerialInterrupt (void)
 {
   IERA &= ~0x10;
+  IMRA &= ~0x10;
 }
 
 char getDebugChar(void)
