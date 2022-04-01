@@ -4,9 +4,12 @@ UDR:          .equ    USART_BASE + 0x2f
 #endif // HB68K08
 
 #ifdef A2560U
-#define UART_BASE  0XB00000
-UART_TRHB:    .equ    UART_BASE + 0x28f8
+#define GAVIN 0xB00000
+UART_TRHB:    .equ    GAVIN + 0x28f8
+INT_PEND_REG1: .equ   GAVIN + 0x102
 #endif // A2560U
+
+#define FNX1_INT04_COM1 0x08
 
 #define BREAK_OPCODE 0x4848
 
@@ -37,6 +40,9 @@ uartInterrupt:
               move.b  UDR.l,d0
 #endif
 #ifdef A2560U
+              moveq.l #FNX1_INT04_COM1,d0 ; clear pending status
+              move.w  d0,INT_PEND_REG1
+
               move.b  UART_TRHB.l,d0
 #endif
               cmp.b   #3,d0         ; Ctrl-C ?
