@@ -90,7 +90,8 @@ typedef uint8_t backing_t;
 
 /************************************************************************/
 
-//
+// Ensure __CALYPSI_TARGET_68000__ is defined when deprecated
+// __CALYPSI_TARGET_M68K__ is given.
 #if defined(__CALYPSI_TARGET_M68K__) && !defined(__CALYPSI_TARGET_68000__)
 #define __CALYPSI_TARGET_68000__
 #endif
@@ -337,8 +338,8 @@ void putpacket (char *buffer)
 
       while ((ch = buffer[count]))
         {
-          putDebugChar(ch);
           checksum += ch;
+          putDebugChar(ch);
           count += 1;
         }
 
@@ -983,9 +984,14 @@ int main ()
   exceptionHandler(76, jmp, uartInterrupt);
 #endif // HB68K08
 
+#if defined(A2560U)
+  exceptionHandler(0x43, jmp, uartInterrupt);
+#endif
+
 #endif  // __CALYPSI_TARGET_68000__
 
   initialize();
+
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();
 #elif  defined(__CALYPSI_TARGET_68000__)
