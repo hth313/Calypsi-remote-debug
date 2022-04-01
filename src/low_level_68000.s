@@ -11,6 +11,7 @@ UART_TRHB:    .equ    UART_BASE + 0x28f8
 #define BREAK_OPCODE 0x4848
 
               .section nearcode
+              .align   2
               .extern registers, handleException, computeSignal
               .public illegalHandler, continueExecution, traceHandler, uartInterrupt
               .public _catchException, _debug_level7
@@ -98,6 +99,7 @@ _debug_level7:
 ;;; There is no entry for the first two vectors, as we do not take over
 ;;; the reset handling in this way.
               .section vectors6, noinit
+              .align  2
               .public exceptionTable
 exceptionTable:
               .space  (256 - 2) * 6
