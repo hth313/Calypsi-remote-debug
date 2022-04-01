@@ -44,7 +44,7 @@ extern void uartInterrupt();
 #define MCR_OUT2    8
 #define MCR_TEST   16
 
-#define INT_MASK_REG1 *(volatile uint16_t*)(GAVIN + 0x0102)
+#define INT_MASK_REG1 *(volatile uint16_t*)(GAVIN + 0x011a)
 
 #define FNX1_INT04_COM1 0x08
 
