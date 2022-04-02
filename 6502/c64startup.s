@@ -21,6 +21,7 @@ __program_root_section:
 
 #ifdef AS_PRG_STYLE
               .section programStart ; to be at address 0x801
+__program_root_section:
               .word   nextLine
               .word   10            ; line number
               .byte   0x9e, " 2062", 0 ; SYS 2062
