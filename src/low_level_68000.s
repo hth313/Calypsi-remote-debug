@@ -61,10 +61,8 @@ saveRegisters10:
               move.l  a0,registers+64.l
               move.l  6(sp),registers+68.l
               move.w  4(sp),registers+72.l
-              btst.b  #5,4(sp)      ; are debugee in supervisor?
-              beq.s   10$           ; no
-              sub.l   #10,registers+60.l ; yes, adjust sstack
-10$:          rts
+              add.l   #10,registers+60.l
+              rts
 
 _catchException:
               movem.l d0-d7/a0-a7,registers.l
