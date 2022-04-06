@@ -3,17 +3,22 @@
 #include <intrinsics68000.h>
 
 #define USART_BASE  0x0E0000
-#define IERA *(uint8_t*)(USART_BASE + 0x07)
 #define UDR  *(uint8_t*)(USART_BASE + 0x2f) // data register
 #define UCR  *(uint8_t*)(USART_BASE + 0x29) // control register
 #define RSR  *(uint8_t*)(USART_BASE + 0x2b) // receiver status register
 #define TSR  *(uint8_t*)(USART_BASE + 0x2d)
 
-#define TCDRHI *(uint8_t*)(USART_BASE + 0x23)
-#define TCDRLO *(uint8_t*)(USART_BASE + 0x25)
+#define TCDCR *(uint8_t*)(USART_BASE + 0x1d)
+
+#define TCDR *(uint8_t*)(USART_BASE + 0x23)
+#define TDDR *(uint8_t*)(USART_BASE + 0x25)
 
 #define GPIP *(uint8_t*)(USART_BASE + 0x01)
+#define IERA *(uint8_t*)(USART_BASE + 0x07)
 #define IERB *(uint8_t*)(USART_BASE + 0x09)
+#define IPRA *(uint8_t*)(USART_BASE + 0x0b)
+#define IPRB *(uint8_t*)(USART_BASE + 0x0d)
+#define ISRA *(uint8_t*)(USART_BASE + 0x0f)
 #define ISRB *(uint8_t*)(USART_BASE + 0x11)
 #define IMRA *(uint8_t*)(USART_BASE + 0x13)
 
@@ -40,8 +45,10 @@ void initialize(void)
   }
 
   // 7.3728 MHz / 2 with Timer C & D -> 57600 bit/s
-  TCDRHI = (uint8_t) (B57600 >> 8);
-  TCDRLO = (uint8_t) B57600;
+  TCDR = (uint8_t) (B57600 >> 8);
+  TDDR = (uint8_t) B57600;
+  TCDCR = 0x11;   //   div by 4
+
   UCR = DIV16 | ASYNC; // 8 bits, no parity, 1 stop, async, div by 16
   RSR = 1;             // enable receiver
   TSR = 1;             // enable transmitter
