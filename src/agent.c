@@ -551,6 +551,10 @@ void handleException (unsigned sigval)
 #if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
       registers.sr = (sr_save & I_BIT) | (registers.sr & ~I_BIT);
 #endif
+#if defined (__CALYPSI_TARGET_68000__)
+          /* clear the trace bit */
+          registers.sr &= 0x7fff;
+#endif
       singleStepping = false;
       if (sigval == 19)
         {
