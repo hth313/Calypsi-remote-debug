@@ -714,29 +714,34 @@ illegal_binary_char:
 #if ! defined (__CALYPSI_TARGET_68000__)
           /*
            * The step command is deprecated in the gdbserver protocol.
-           * For targets without a proper step mode we read one
-           * address for the next stop point and use temporary
-           * breakpoints there.
-           * The idea is to then issue a 'go' with interrupts disabled as
-           * it is expected that we stop immediately.
+           * Here it is used with an extra address argument that specifies
+           * the address of the instruction after the next one, where we
+           * can insert a breakpoint on targets that does not have a proper
+           * step/trace mode.
            */
         case 's':
-          if (hexToLongInt(&ptr, &lvalue))
+          if (hexToLongInt(&ptr, &lvalue)
+              && *(ptr++) == ',')
             {
-              stepBreakpoint.address = (address_t) lvalue;
+              registers.pc = lvalue;
 
-              // active the temporary breakpoints
-              insertBreakpoints(&stepBreakpoint, 1);
+              if (hexToLongInt(&ptr, &lvalue))
+                {
+                  stepBreakpoint.address = (address_t) lvalue;
+
+                  // active the temporary breakpoints
+                  insertBreakpoints(&stepBreakpoint, 1);
 
               // disable interrupts
 #if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
-              sr_save = registers.sr;
-              registers.sr |= I_BIT;
+                  sr_save = registers.sr;
+                  registers.sr |= I_BIT;
 #endif
-              // say that we are stepping
-              singleStepping = true;
+                  // say that we are stepping
+                  singleStepping = true;
 
-              continueExecution(&registers);  /* this is a jump */
+                  continueExecution(&registers);  /* this is a jump */
+                }
             }
           break;
 #endif
