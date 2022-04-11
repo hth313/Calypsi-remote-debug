@@ -3,10 +3,35 @@
 This is a remote debug monitor or agent, implementing part of the gdbserver
 protocol intended to be used with the Calypsi C compiler.
 
-Currently there is support for the C256 Foenix U/U+ with a WDC65816.
+## Supported boards
+
+The C256 Foenix U/U+ with a WDC65816 is supported using its serial
+port at 115220.
+
+The A2560 Foenix U/U+ with a 68000 is supported using its serial
+port at 115220.
+
+The HB68K08 single board computer with a 68008 is supported and its
+serial port works at 57600.
+
+## New targets
+
+6502 support for the Commodore 64 using its VICE emulator has been
+tried, but so far I have not managed to make the serial port work.
+If you are interested, please give it a try getting it to work
+with the Swiftlink serial port, either on VICE or a real Commodore 64.
 
 Porting to other boards should be fairly straightforward by replacing
 the low level communication functions.
+
+The Foenix FMX should be fairly easy to add support for. It uses a
+different serial port with different speed factors located at
+another address.
+
+The A2560K uses different addresses and a serial port with different
+speed factors.
+
+
 
 ## Configure the port
 
@@ -29,16 +54,15 @@ You can configure the serial port on the host using:
 $ stty 115200 -F /dev/ttyUSB1
 ```
 
-Another alternative is to use the `screen` utility program, which
-opens a terminal session.
+An alternative is to use the `screen` utility program, which opens a
+terminal session. This also sets up the serial port and you can also
+test that the monitor responds to input.
 
 ```
 $ screen /dev/ttyUSB1 115200
 ```
 
-Once you installed ans started the debugger agent you can verify that
-it is running and both ends are properly configured by pressing a
-key. The agent should respond with `$S13#b7`.
+If you press a key the remote debug agent should respond with `$S13#b7`.
 
 ## Protocol snooping
 
