@@ -1,4 +1,4 @@
-VPATH = ../src
+VPATH = ../../src
 ASM_SRCS = low_level_WDC65816.s
 C_SRCS = agent.c c256-uart.c
 
