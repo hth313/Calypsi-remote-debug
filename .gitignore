@@ -4,7 +4,8 @@
 /**/obj/*.o
 */agent
 */agent.*
-*/agent-U.*
+*/*/agent-U.*
+*/*/agent-FMX.*
 agent-hb68k08*
 agent-a2560u*
 native-hb68k08*
