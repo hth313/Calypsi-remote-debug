@@ -1,6 +1,11 @@
 ;;; Low level exection handling WDC65816
 
+#ifdef __TARGET_C256_FMX__
+#define UART_BASE 0xaf13f8
+#else
 #define UART_BASE 0xaf18f8
+#endif
+
 #define UART_TRHB UART_BASE
 #define UART_LSR  (UART_BASE + 5)
 
