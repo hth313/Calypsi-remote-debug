@@ -1,7 +1,8 @@
 # Calypsi remote debug agent
 
 This is a remote debug monitor or agent, implementing part of the gdbserver
-protocol intended to be used with the Calypsi C compiler.
+protocol intended to be used with the
+[Calypsi C compiler](https://www.calypsi.cc/).
 
 ## Supported boards
 
@@ -24,9 +25,8 @@ with the Swiftlink serial port, either on VICE or a real Commodore 64.
 Porting to other boards should be fairly straightforward by replacing
 the low level communication functions.
 
-The Foenix FMX should be fairly easy to add support for. It uses a
-different serial port with different speed factors located at
-another address.
+The Foenix FMX has been added but is currently untested as I do not
+have access to any such machine.
 
 The A2560K uses different addresses and a serial port with different
 speed factors.
