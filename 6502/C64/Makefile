@@ -1,4 +1,4 @@
-VPATH = ../src
+VPATH = ../../src
 ASM_SRCS = low_level_C64_ACIA.s c64startup.s
 C_SRCS = agent.c 6551-acia.c
 
