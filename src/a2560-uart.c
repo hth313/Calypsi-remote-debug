@@ -3,7 +3,7 @@
 #include "api.h"
 
 extern void breakHandler();
-extern void uartInterrupt();
+extern void interruptHandler();
 
 #define GAVIN 0x00B00000
 #define UART_BASE (GAVIN + 0x28f8)

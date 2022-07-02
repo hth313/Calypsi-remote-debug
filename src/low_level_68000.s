@@ -16,7 +16,7 @@ INT_PEND_REG1: .equ   GAVIN + 0x102
               .section nearcode
               .align   2
               .extern registers, handleException, computeSignal
-              .public illegalHandler, continueExecution, traceHandler, uartInterrupt
+              .public illegalHandler, continueExecution, traceHandler, interruptHandler
               .public _catchException, _debug_level7
 
 ;;; BKPT and malformed intructions come here
@@ -34,7 +34,7 @@ traceHandler:
               moveq.l #19,d0
 toMonitor:    jmp     handleException
 
-uartInterrupt:
+interruptHandler:
               move.w  d0,-(sp)
 #ifdef HB68K08
               move.b  UDR.l,d0

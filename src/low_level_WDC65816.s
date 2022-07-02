@@ -12,7 +12,7 @@
 #define INT_PENDING_REG1 0x000141
 #define FNX1_INT04_COM1 0x10
 
-              .public breakHandler, continueExecution, uartInterrupt
+              .public breakHandler, continueExecution, interruptHandler
               .extern handleException, origIRQVector, registers
               .extern _DirectPageStart
               .section code
@@ -23,7 +23,7 @@ breakHandler:
               lda     ##19
 toMonitor:    jmp     handleException
 
-uartInterrupt:
+interruptHandler:
               sep     #0x20         ; 8 bits data
               pha
               lda     long:UART_LSR

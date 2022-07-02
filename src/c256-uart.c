@@ -1,9 +1,14 @@
 // C256 Foenix U/U+ UART
 #include "api.h"
+#ifdef __CALYPSI_TARGET_65816__
 #include <intrinsics65816.h>
+#endif
+#ifdef __CALYPSI_TARGET_6502__
+#include <intrinsics6502.h>
+#endif
 
 extern void breakHandler();
-extern void uartInterrupt();
+extern void interruptHandler();
 
 #ifdef __TARGET_C256_FMX__
 /* Base address for UART 1 (COM1) */
@@ -81,7 +86,7 @@ void initialize(void)
   // Set our own interrupt handler.
   // This is used to handle Ctrl-C after allowing target program to
   // continue execution, otherwise communication is polled.
-  IRQ_VECTOR = uartInterrupt;
+  IRQ_VECTOR = interruptHandler;
 
   // Preserve original BRK vector
   origBRKVector = BRK_VECTOR;

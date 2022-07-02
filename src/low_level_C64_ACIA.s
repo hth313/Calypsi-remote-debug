@@ -1,5 +1,5 @@
               .public interruptHandler
-              .public breakHandler
+              .public breakHandler, interruptHandler
               .public continueExecution
               .extern _Zp, registers, handleException, origIRQVector
 
