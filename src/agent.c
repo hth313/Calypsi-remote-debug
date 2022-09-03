@@ -523,6 +523,10 @@ static void signalPacket (unsigned sigval)
   remcomOutBuffer[3] = 0;
 }
 
+#if defined (__CALYPSI_TARGET_68000__)
+#define __SINGLE_STEP_CAPABLE_TARGET__ 1
+#endif
+
 /*
  * This function does all command processing.
  */
@@ -534,20 +538,13 @@ void handleException (unsigned sigval)
   char *ptr;
   int newPC;
 
-  // Clear any breakpoints placed in the code
-#if defined (__CALYPSI_TARGET_68000__)
+  // Clear any breakpoints placed in the code, adjust registers
+  // as needed when single stepping.
   if (singleStepping)
     {
-      singleStepping = false;
-      if (sigval == 19)
-        {
-          sigval = 5;   // say we did a trace trap
-        }
-    }
-#else
-  if (singleStepping)
-    {
+#if !defined __SINGLE_STEP_CAPABLE_TARGET__
       removeBreakpoints(&stepBreakpoint, 1);
+#endif
 #if defined(__CALYPSI_TARGET_65816__) || defined(__CALYPSI_TARGET_6502__)
       registers.sr = (sr_save & I_BIT) | (registers.sr & ~I_BIT);
 #endif
@@ -561,7 +558,6 @@ void handleException (unsigned sigval)
           sigval = 5;   // say we did a trace trap
         }
     }
-#endif
   else
     {
       disableSerialInterrupt();
@@ -711,7 +707,7 @@ illegal_binary_char:
 #endif
           break;
 
-#if ! defined (__CALYPSI_TARGET_68000__)
+#ifndef __SINGLE_STEP_CAPABLE_TARGET__
           /*
            * The step command is deprecated in the gdbserver protocol.
            * Here it is used with an extra address argument that specifies
@@ -748,7 +744,7 @@ illegal_binary_char:
 
           /* cAA..AA    Continue at address AA..AA(optional) */
           /* sAA..AA   Step one instruction from AA..AA(optional) */
-#if defined (__CALYPSI_TARGET_68000__)
+#ifdef __SINGLE_STEP_CAPABLE_TARGET__
         case 's':
           singleStepping = true;
 #endif
