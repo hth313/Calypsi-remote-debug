@@ -5,18 +5,36 @@
 extern void breakHandler();
 extern void interruptHandler();
 
-#define GAVIN 0x00B00000
-#define UART_BASE (GAVIN + 0x28f8)
+/*
+  The A2560U has a unique GAVIN address and timings.
+  Other models including the A2560K, A2560X, and GEN-X
+  share the same base address and timings.
+*/
+#ifdef A2560U
+  #define GAVIN  0x00B00000
+  #define UART_300     4167
+  #define UART_1200    1042
+  #define UART_2400     521
+  #define UART_4800     260
+  #define UART_9600     130
+  #define UART_19200     65
+  #define UART_38400     33
+  #define UART_57600     21
+  #define UART_115200    10
+#else 
+  #define GAVIN  0xFEC00000
+  #define UART_300      384
+  #define UART_1200      96
+  #define UART_2400      48
+  #define UART_4800      24
+  #define UART_9600      12
+  #define UART_19200      6
+  #define UART_38400      3
+  #define UART_57600      2
+  #define UART_115200     1
+#endif
 
-#define UART_300     4167
-#define UART_1200    1042
-#define UART_2400     521
-#define UART_4800     260
-#define UART_9600     130
-#define UART_19200     65
-#define UART_38400     33
-#define UART_57600     21
-#define UART_115200    10
+#define UART_BASE (GAVIN + 0x28f8)
 
 #define UART_TRHB *(volatile uint8_t*)(UART_BASE + 0)    // Transmit/Receive Hold Buffer
 #define UART_IER  *(volatile uint8_t*)(UART_BASE + 1)    // Interupt Enable Register
