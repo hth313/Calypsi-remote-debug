@@ -1,16 +1,16 @@
 ;;; Low level exection handling WDC65816
 
 #ifdef __TARGET_C256_FMX__
-#define UART_BASE 0xaf13f8
+UART_BASE:    .equ 0xaf13f8
 #else
-#define UART_BASE 0xaf18f8
+UART_BASE:    .equ    0xaf18f8
 #endif
 
-#define UART_TRHB UART_BASE
-#define UART_LSR  (UART_BASE + 5)
+UART_TRHB:    .equ    UART_BASE
+UART_LSR:     .equ    (UART_BASE + 5)
 
-#define INT_PENDING_REG1 0x000141
-#define FNX1_INT04_COM1 0x10
+INT_PENDING_REG1: .equ 0x000141
+FNX1_INT04_COM1: .equ 0x10
 
               .public breakHandler, continueExecution, interruptHandler
               .extern handleException, origIRQVector, registers
