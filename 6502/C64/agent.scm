@@ -7,8 +7,6 @@
             (section cstack data zdata heap))
     (memory ZPAGE (address (#x00 . #xff))
             (section (registers (#xca . #xff))))
-    (memory STACK (address (#x100 . #x1ff))
-            (section (stack (#x100 . #x1ff))))
     (block cstack (size #x100))
     (block stack (size #x100))
     (block heap (size #x00))
