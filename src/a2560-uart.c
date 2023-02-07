@@ -54,9 +54,8 @@ void initialize(void)
   UART_LCR |= LCR_DLB;     // enable divisor latch
   UART_DLL = UART_115200 & 255;
   UART_DLM = UART_115200 >> 8;
-  UART_LCR &= ~LCR_DLB;    // disable divisor latch
 
-  // Set mode
+  // Set mode, also disables divisor latch
   UART_LCR = LCR_PARITY_NONE | LCR_STOPBIT_1 | LCR_DATABITS_8;
 
   // Enable and reset FIFO
