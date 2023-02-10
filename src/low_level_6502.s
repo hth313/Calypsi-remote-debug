@@ -7,14 +7,14 @@
 ACIA:         .equ    0xde00
 #endif
 
-#ifdef FOENIX_JR
-UART_BASE:    .equ    0xd630
+#ifdef __CALYPSI_TARGET_FOENIX__
+INT_PENDING_1: .equlab 0xd661
+UART_BASE:    .equlab 0xd630
 
-UART_TRHB:    .equ    UART_BASE
-UART_LSR:     .equ    (UART_BASE + 5)
+UART_TRHB:    .equlab UART_BASE
+UART_LSR:     .equlab (UART_BASE + 5)
 
-INT_PENDING_REG1: .equ 0x000141
-FNX1_INT04_COM1: .equ 0x10
+//FNX1_INT04_COM1: .equ 0x10
 
 #endif
               .section code
@@ -59,15 +59,15 @@ interruptHandler:
               beq     10$           ; no
               lda     ACIA          ; read character
 #endif
-#ifdef FOENIX_JR
-              lda     UART_LSR
-              lsr     a             ; data available?
-              bcc     10$           ; no
+
+#ifdef __CALYPSI_TARGET_FOENIX__
+              lda     #1            ; UART interrupt pending?
+              bit     INT_PENDING_1
+              beq     10$           ; no
+              sta     INT_PENDING_1 ; acknowledge interrupt
+              bit     UART_LSR      ; is there a character?
+              beq     10$           ; no
               lda     UART_TRHB     ; read character
-              phx
-              ldx     #FNX1_INT04_COM1
-              stx     INT_PENDING_REG1
-              plx
 #endif
               cmp     #3            ; Ctrl-C?
               bne     10$           ; no
@@ -79,13 +79,13 @@ interruptHandler:
 
 10$:
 #ifdef __CALYPSI_CORE_65C02__
-              plx                   ; restore A and X
+              plx                   ; no, pass down the chain
 #else
               pla
               tax
 #endif
               pla
-              jmp     (origIRQVector) ; let next in chain handle it
+              jmp     (origIRQVector)
 
 saveFrame:    lda     0x101,x       ; X
               sta     registers + 3
