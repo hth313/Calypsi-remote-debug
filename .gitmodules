@@ -1,0 +1,3 @@
+[submodule "module/Calypsi-6502-Foenix"]
+	path = module/Calypsi-6502-Foenix
+	url = https://github.com/hth313/Calypsi-6502-Foenix.git

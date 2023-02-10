@@ -8,7 +8,7 @@ obj/%.o: %.s
 	as6502 --core=65c02 --target=foenix --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%.o: %.c
-	cc6502 --core=65c02 --target=foenix -O2 --list-file=$(@:%.o=%.lst) -o $@ $< -I/home/hth/projects/Calypsi-6502-Foenix/include
+	cc6502 --core=65c02 --target=foenix -O2 --list-file=$(@:%.o=%.lst) -o $@ $< -I../../module/Calypsi-6502-Foenix/include
 
 all: agent.elf
 

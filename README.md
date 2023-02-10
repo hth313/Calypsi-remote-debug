@@ -4,6 +4,13 @@ This is a remote debug monitor or agent, implementing part of the gdbserver
 protocol intended to be used with the
 [Calypsi C compiler](https://www.calypsi.cc/).
 
+## Submodules
+
+This project uses Git submodules. When you clone the project use the
+`--recursive-submodules` command line option. If you forget or have
+already cloned the project you can pull in submodules using the
+`git submodule init` and `git submodule update` commands.
+
 ## Supported boards
 
 The C256 Foenix U/U+ with a WDC65816 is supported using its serial
