@@ -4,6 +4,7 @@
 // HP has placed in the public domain. It has been reworked here but
 // some stuff is defintely recognizable.
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
