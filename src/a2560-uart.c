@@ -64,6 +64,9 @@ void initialize(void)
   UART_IER = 0;   // polled mode used when in control
 
   UART_MCR = MCR_DTR | MCR_RTS;
+
+  putDebugChar('H');
+  putDebugChar('I');
 }
 
 void enableSerialInterrupt (void)

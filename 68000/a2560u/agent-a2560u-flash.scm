@@ -1,5 +1,5 @@
 (define memories
-  '((memory vector (address (#xe00000 . #xe003ff))  (section reset))
+  '((memory flash (address (#xe00000 . #xe7ffff)) (fill 0)
+      (section (reset #xe00000) switch data_init_table ifar cfar nearcode))
     (memory loram  (address (#x00400 . #x013ff)) (type RAM) (section vectors6))
-    (memory flash   (address (#xe00400 . #xe01fff)) (type ROM))
     ))
