@@ -20,7 +20,7 @@ agent-a2560u.pgz: $(OBJS)
 
 # A variant for complete system take over. This is intended to be flashed, instead of the MCP.
 agent-a2560u-flash.raw: $(OBJS)
-	ln68k --list-file=agent-flash-a2560u.lst --cross-reference -o $@ $^ agent-a2560u-loram.scm clib-68000-sc-fod.a --rtattr exit=simplified --rtattr cstartup=foenix_monitor --output-format raw --heap-size=0 --sstack-size=0x0200
+	ln68k --list-file=agent-flash-a2560u.lst --cross-reference -o $@ $^ agent-a2560u-flash.scm clib-68000-sc-fod.a --rtattr exit=simplified --rtattr cstartup=foenix_monitor --output-format raw --heap-size=0 --sstack-size=0x0200
 
 clean:
 	-rm $(OBJS) obj/*.lst agent-a2560u.s28 agent-a2560u.lst agent-a2560u.pgz agent-a2560u

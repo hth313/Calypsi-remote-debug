@@ -32,7 +32,6 @@
 __program_root_section:
               .long   .sectionEnd sstack + 1
               .long   __program_start
-              .space  1024
 
 ;;; ***************************************************************************
 ;;;
@@ -49,10 +48,6 @@ __program_root_section:
               .pubweak __program_start
               .align  2
 __program_start:
-              move.l  #4,0xb40000
-              move.l  #1,0xb40004
-              move.l  #0x12345678,0xb40008
-
 #ifdef __CALYPSI_DATA_MODEL_SMALL__
               lea.l   _NearBaseAddress.l,a4
 #endif
