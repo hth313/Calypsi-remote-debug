@@ -382,12 +382,35 @@ address_t hex2mem (char *buf, address_t mem, size_t count)
 {
   int i;
   char ch;
+
+#if defined (__CALYPSI_TARGET_68000__)
+  long vector4 = *(long*) (4 * 4);
+  long vector9 = *(long*) (9 * 4);
+#if defined(A2560U)
+  long vector0x43 = *(long*) (0x43 * 4);
+#endif
+#if defined(HB68K08)
+  long vector76 = *(long*) (76 * 4);
+#endif
+#endif
+
   for (i = 0; i < count; i++)
     {
       ch = hex(*buf++) << 4;
       ch = ch + hex(*buf++);
       *mem++ = ch;
     }
+#if defined (__CALYPSI_TARGET_68000__)
+  *(long*) (4 * 4) = vector4;
+  *(long*) (9 * 4) = vector9;
+#if defined(A2560U)
+  *(long*) (0x43 * 4) = vector0x43;
+#endif
+#if defined(HB68K08)
+  *(long*) (76 * 4) = vector76;
+#endif
+#endif
+
   return mem;
 }
 
