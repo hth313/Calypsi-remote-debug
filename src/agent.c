@@ -983,7 +983,11 @@ illegal_binary_char:
     }
 }
 
+#ifdef _CALYPSI_MCP_BUILD
+int CalypsiDebugger ()
+#else
 int main ()
+#endif
 {
 #if defined (__CALYPSI_TARGET_68000__)
   for (unsigned exception = 2; exception <= 23; exception++)
