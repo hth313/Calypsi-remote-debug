@@ -13,7 +13,11 @@ INT_PEND_REG1: .equ   GAVIN + 0x102
 
 #define BREAK_OPCODE 0x4848
 
+#ifdef __CALYPSI_CODE_MODEL_SMALL__
               .section nearcode
+#else
+              .section code
+#endif
               .align   2
               .extern registers, handleException, computeSignal
               .public illegalHandler, continueExecution, traceHandler, uartInterrupt
