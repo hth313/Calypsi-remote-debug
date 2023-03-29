@@ -48,7 +48,7 @@ extern void interruptHandler();
 
 #define FNX1_INT04_COM1 0x08
 
-void initialize(void)
+void initializeTarget(void)
 {
   // Set speed
   UART_LCR |= LCR_DLB;     // enable divisor latch

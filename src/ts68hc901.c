@@ -36,7 +36,7 @@
 #define DIV16     0x80
 #define ASYNC     0x08
 
-void initialize(void)
+void initializeTarget(void)
 {
   // disable all interrupts
   uint8_t *p = &GPIP;

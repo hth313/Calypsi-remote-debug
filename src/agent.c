@@ -1016,7 +1016,7 @@ int main ()
 
 #endif  // __CALYPSI_TARGET_68000__
 
-  initialize();
+  initializeTarget();
 
 #if defined(__CALYPSI_TARGET_6502__) || defined(__CALYPSI_TARGET_65816__)
   __break_instruction();

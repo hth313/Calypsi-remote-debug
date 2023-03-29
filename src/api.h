@@ -2,7 +2,7 @@
 #define _API_H_
 
 // Target API
-extern void initialize(void);
+extern void initializeTarget(void);
 extern char getDebugChar(void);
 extern void putDebugChar(char);
 extern void continueExecution(void*);

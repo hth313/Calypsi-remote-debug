@@ -70,7 +70,7 @@ extern void interruptHandler();
 void *origIRQVector;
 void *origBRKVector;
 
-void initialize(void)
+void initializeTarget(void)
 {
   // Debugger agent runs with interrupts disabled.
   __disable_interrupts();
