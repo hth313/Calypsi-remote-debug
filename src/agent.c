@@ -26,7 +26,7 @@
 /************************************************************************/
 
 #ifdef __CALYPSI_TARGET_6502__
-#include <intrinsics6502.h>
+#include <calypsi/intrinsics6502.h>
 
 typedef struct {
   uint16_t pc;
@@ -55,7 +55,7 @@ typedef uint8_t backing_t;
 /************************************************************************/
 
 #ifdef __CALYPSI_TARGET_65816__
-#include <intrinsics65816.h>
+#include <calypsi/intrinsics65816.h>
 
 #ifdef __CALYPSI_TARGET_SYSTEM_FOENIX__
 // Cannot have the math unit enabled as we may debug code that
@@ -99,7 +99,7 @@ typedef uint8_t backing_t;
 
 #ifdef __CALYPSI_TARGET_68000__
 
-#include <intrinsics68000.h>
+#include <calypsi/intrinsics68000.h>
 
 #ifdef __CALYPSI_TARGET_SYSTEM_FOENIX__
 // Cannot have the math unit enabled as we may debug code that
