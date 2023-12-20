@@ -1,8 +1,8 @@
 // F256 Jr. UART
 #include "api.h"
-#include <intrinsics6502.h>
-#include "foenix/interrupt.h"
-#include "foenix/uart.h"
+#include <calypsi/intrinsics6502.h>
+#include <foenix/interrupt.h>
+#include <foenix/uart.h>
 
 extern void breakHandler();
 extern void interruptHandler();

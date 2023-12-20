@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include "api.h"
-#include <intrinsics6502.h>
+#include <calypsi/intrinsics6502.h>
 
 #define ACIA_BASE      0xde00
 #define ACIA_DATA      *(volatile char*)(ACIA_BASE + 0)

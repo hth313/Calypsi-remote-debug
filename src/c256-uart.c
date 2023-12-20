@@ -1,6 +1,6 @@
 // C256 Foenix U/U+ UART
 #include "api.h"
-#include <intrinsics65816.h>
+#include <calypsi/intrinsics65816.h>
 
 extern void breakHandler();
 extern void interruptHandler();

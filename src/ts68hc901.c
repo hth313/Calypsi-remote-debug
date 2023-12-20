@@ -1,6 +1,6 @@
 #include <stdint.h>
 #include "api.h"
-#include <intrinsics68000.h>
+#include <calypsi/intrinsics68000.h>
 
 #define USART_BASE  0x0E0000
 #define UDR  *(uint8_t*)(USART_BASE + 0x2f) // data register
