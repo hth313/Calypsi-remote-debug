@@ -281,6 +281,11 @@ char *getpacket (void)
             break;
           checksum = checksum + ch;
           buffer[count] = ch;
+          if (ch == ':' && buffer[0] == 'X')
+            {
+              // Return early for X command, after ':'
+              return &buffer[0];
+            }
           count = count + 1;
         }
       buffer[count] = 0;
@@ -556,7 +561,6 @@ static void signalPacket (unsigned sigval)
  */
 void handleException (unsigned sigval)
 {
-  size_t length;
   long lvalue;
   address_t addr;
   char *ptr;
@@ -628,7 +632,7 @@ void handleException (unsigned sigval)
                   if (   *(ptr++) == ','
                       && hexToLongInt(&ptr, &lvalue))
                     {
-                      length = lvalue;
+                      unsigned length = lvalue;
                       ptr = 0;
                       mem2hex((address_t)addr, remcomOutBuffer, length);
                     }
@@ -661,34 +665,37 @@ void handleException (unsigned sigval)
             {
               addr = (address_t) lvalue;
               if (   hexToLongInt(&ptr, &lvalue)
-                  && *(ptr++) == ':')
+                  && *ptr == ':')
                 {
-                  length = lvalue;
+                  long length = lvalue;
                   char c;
-                  while (length >= 0)
+                  while (length != 0)
                     {
-                      c = *ptr++;
-                      length--;
+                      // Due to small buffer, everything after
+                      // the ':' needs to be fetched now as being written.
+                      c = getDebugChar();
                       switch (c)
                         {
-                        case 0x23:
-                        case 0x24:
+                        case '#':
+                        case '$':
                           goto illegal_binary_char;
                         case 0x7d: // escape
-                          c = *ptr++ ^ 0x20;
-                          length--;
+                          c = getDebugChar() ^ 0x20;
                           break;
                         default:
                           break;
                         }
-                      *addr = c;
-                      addr++;
-                    }
+                      *addr++ = c;
+                      length--;
+		    }
+		  strcpy(remcomOutBuffer, "OK");
+		  break;
                 }
-illegal_binary_char:
-              ;
             }
-            break;
+
+illegal_binary_char:
+          strcpy(remcomOutBuffer, "E01");
+          break;
 
           /* MAA..AA,LLLL: Write LLLL bytes at address AA.AA return OK */
         case 'M':
@@ -705,7 +712,7 @@ illegal_binary_char:
                   if (   hexToLongInt(&ptr, &lvalue)
                       &&  *(ptr++) == ':')
                     {
-                      length = lvalue;
+                      unsigned length = lvalue;
                       hex2mem(ptr, addr, length);
                       ptr = 0;
                       strcpy(remcomOutBuffer, "OK");
