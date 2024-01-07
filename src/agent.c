@@ -990,7 +990,7 @@ illegal_binary_char:
     }
 }
 
-#ifdef _CALYPSI_MCP_BUILD
+#ifdef _CALYPSI_MCP_DEBUGGER
 int CalypsiDebugger ()
 #else
 int main ()

@@ -67,8 +67,11 @@ extern void interruptHandler();
 #define BRK_VECTOR    *(void**) 0x00ffe6
 #define IRQ_VECTOR    *(void**) 0x00ffee
 
-void *origIRQVector;
-void *origBRKVector;
+#ifdef _CALYPSI_MCP_DEBUGGER
+#pragma clang section bss="zdata"
+#endif
+long origIRQVector;
+long origBRKVector;
 
 void initializeTarget(void)
 {
@@ -76,7 +79,7 @@ void initializeTarget(void)
   __disable_interrupts();
 
   // Preserve original UART1 interrupt vector
-  origIRQVector = IRQ_VECTOR;
+  origIRQVector = (long) IRQ_VECTOR;
 
   // Set our own interrupt handler.
   // This is used to handle Ctrl-C after allowing target program to
@@ -84,7 +87,7 @@ void initializeTarget(void)
   IRQ_VECTOR = interruptHandler;
 
   // Preserve original BRK vector
-  origBRKVector = BRK_VECTOR;
+  origBRKVector = (long) BRK_VECTOR;
 
   // Insert our own BRK vector
   BRK_VECTOR = breakHandler;
