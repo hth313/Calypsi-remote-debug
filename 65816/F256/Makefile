@@ -8,7 +8,7 @@ obj/%.o: %.s
 	as65816 --target=f256 --data-model=small --list-file=$(@:%.o=%.lst) -o $@ $<
 
 obj/%.o: %.c
-	cc65816 --target=f256 --data-model=small --code-model=small -O2 --list-file=$(@:%.o=%.lst) -o $@ $<
+	cc65816 --target=f256 --data-model=small --code-model=small -O2 --no-cross-call --list-file=$(@:%.o=%.lst) -o $@ $<
 
 all: agent-F256.hex
 
