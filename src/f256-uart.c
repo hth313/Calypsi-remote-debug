@@ -1,23 +1,28 @@
-// F256 Jr. UART
+// F256 UART
 #include "api.h"
 #include <calypsi/intrinsics65816.h>
 #include <f256.h>
 
-extern void breakHandler();
-extern void interruptHandler();
+extern char breakHandler[];
+extern char interruptHandler[];
 
 #define UINT_DATA_AVAIL 1       // Enable Recieve Data Available interupt
 
-#define IRQ_VECTOR    *(void**) 0x00fffe
+#if 0
+#define BRK_VECTOR    *(void**) 0x00ffe6
+#define IRQ_VECTOR    *(void**) 0x00ffee
 
 void *origIRQVector;
 void *origBRKVector;
+#endif
 
 void initializeTarget(void)
 {
   // Debugger agent runs with interrupts disabled.
   __disable_interrupts();
 
+  // Vectors are actually in flash on the F256/65816
+#if 0
   // Preserve original UART1 interrupt vector
   origIRQVector = IRQ_VECTOR;
 
@@ -25,6 +30,13 @@ void initializeTarget(void)
   // This is used to handle Ctrl-C after allowing target program to
   // continue execution, otherwise communication is polled.
   IRQ_VECTOR = interruptHandler;
+
+  // Preserve original BRK vector
+  origBRKVector = BRK_VECTOR;
+
+  // Insert our own BRK vector
+  BRK_VECTOR = breakHandler;
+#endif
 
   // Set speed
   UART.lcr |= DIVISOR_LATCH_ENABLE;     // enable divisor latch

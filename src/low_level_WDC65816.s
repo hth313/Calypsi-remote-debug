@@ -1,9 +1,15 @@
 ;;; Low level exection handling WDC65816
 
-#ifdef __TARGET_C256_FMX__
+#if defined(__TARGET_C256_FMX__)
 UART_BASE:    .equ 0xaf13f8
-#else
+#elif defined(__CALYPSI_TARGET_SYSTEM_C256__)
 UART_BASE:    .equ    0xaf18f8
+#elif defined(__CALYPSI_TARGET_SYSTEM_F256__)
+UART_BASE:    .equ    0xf01630
+              .section break, root
+              .word breakHandler
+              .section irq, root
+              .word interruptHandler
 #endif
 
 UART_TRHB:    .equ    UART_BASE
@@ -18,12 +24,12 @@ FNX1_INT04_COM1: .equ 0x10
               .section code
 breakHandler:
               jsr     saveRegisters
-	      lda     long:registers + 12 ; adjust stop address with BRK
-	      dec     a
-	      dec     a
-	      sta     long:registers + 12
+              lda     long:registers + 12 ; adjust stop address with BRK
+              dec     a
+              dec     a
+              sta     long:registers + 12
               lda     ##19
-toMonitor:    jmp    long:handleException
+toMonitor:    jmp     long:handleException
 
 interruptHandler:
               sep     #0x20         ; 8 bits data
@@ -43,7 +49,11 @@ interruptHandler:
               lda     ##2           ; INT (interrupt by Ctrl-C) signal
               bra     toMonitor
 100$:         pla
+#if defined(__CALYPSI_TARGET_SYSTEM_F256__)
+              rti                   ; no chaining on F256, we are in flash
+#else
               jmp     [origIRQVector]
+#endif
 
 ;;; Save registers and set up C state.
 saveRegisters:
@@ -72,9 +82,9 @@ saveRegisters:
               plb                   ; pop 8 dummy
               plb                   ; set data bank
 
-	      txa
+              txa
               sta     long:registers + 2 ; save X
-	      tya
+              tya
               sta     long:registers + 4 ; save Y
 
               lda     3,s           ; save status register and low pc
@@ -90,6 +100,9 @@ saveRegisters:
               rts
 
 ;;; Prepare target for executing the code we are debugging.
+#ifdef __CALYPSI_CODE_MODEL_COMPACT__
+              .section compactcode
+#endif
 continueExecution:
               lda     long:registers + 6
               sec
@@ -106,9 +119,9 @@ continueExecution:
               sta     4,s
 
               lda     long:registers + 4
-	      tay
+              tay
               lda     long:registers + 2
-	      tax
+              tax
 
               lda     long:registers + 8 ; load target direct page
               tcd
