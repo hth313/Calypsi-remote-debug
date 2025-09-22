@@ -1,6 +1,8 @@
 **/*.lst
 **/*.s28
 **/*.hex
+**/*.elf
+**/*.raw
 **/*.o
 **/agent
 **/agent.*
