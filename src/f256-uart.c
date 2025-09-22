@@ -1,4 +1,4 @@
-// F256 UART
+// F256 65816 extended load
 #include "api.h"
 #include <calypsi/intrinsics65816.h>
 #include <f256.h>
