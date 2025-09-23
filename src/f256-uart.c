@@ -8,13 +8,9 @@ extern char interruptHandler[];
 
 #define UINT_DATA_AVAIL 1       // Enable Recieve Data Available interupt
 
-#if 0
-#define BRK_VECTOR    *(void**) 0x00ffe6
-#define IRQ_VECTOR    *(void**) 0x00ffee
-
-void *origIRQVector;
-void *origBRKVector;
-#endif
+// These are stored in the previous page as page FF is flash
+#define BRK_VECTOR    *(void**) 0x00fee6
+#define IRQ_VECTOR    *(void**) 0x00feee
 
 void initializeTarget(void)
 {
@@ -22,21 +18,14 @@ void initializeTarget(void)
   __disable_interrupts();
 
   // Vectors are actually in flash on the F256/65816
-#if 0
-  // Preserve original UART1 interrupt vector
-  origIRQVector = IRQ_VECTOR;
 
-  // Set our own interrupt handler.
+  // Set our own default handlers.
   // This is used to handle Ctrl-C after allowing target program to
   // continue execution, otherwise communication is polled.
   IRQ_VECTOR = interruptHandler;
 
-  // Preserve original BRK vector
-  origBRKVector = BRK_VECTOR;
-
   // Insert our own BRK vector
   BRK_VECTOR = breakHandler;
-#endif
 
   // Set speed
   UART.lcr |= DIVISOR_LATCH_ENABLE;     // enable divisor latch
