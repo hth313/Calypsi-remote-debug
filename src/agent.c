@@ -391,7 +391,7 @@ address_t hex2mem (char *buf, address_t mem, size_t count)
 #if defined (__CALYPSI_TARGET_68000__)
   long vector4 = *(long*) (4 * 4);
   long vector9 = *(long*) (9 * 4);
-#if defined(A2560U)
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
   long vector0x43 = *(long*) (0x43 * 4);
 #endif
 #if defined(HB68K08)
@@ -408,7 +408,7 @@ address_t hex2mem (char *buf, address_t mem, size_t count)
 #if defined (__CALYPSI_TARGET_68000__)
   *(long*) (4 * 4) = vector4;
   *(long*) (9 * 4) = vector9;
-#if defined(A2560U)
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
   *(long*) (0x43 * 4) = vector0x43;
 #endif
 #if defined(HB68K08)
@@ -1017,7 +1017,7 @@ int main ()
   exceptionHandler(76, jmp, uartInterrupt);
 #endif // HB68K08
 
-#if defined(A2560U)
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
   exceptionHandler(0x43, jmp, uartInterrupt);
 #endif
 

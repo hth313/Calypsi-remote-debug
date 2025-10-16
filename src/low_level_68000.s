@@ -3,11 +3,18 @@
 UDR:          .equ    USART_BASE + 0x2f
 #endif // HB68K08
 
-#ifdef A2560U
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__)
 #define GAVIN 0xB00000
+#endif
+
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
+#define GAVIN 0xfec00000
+#endif
+
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
 UART_TRHB:    .equ    GAVIN + 0x28f8
 INT_PEND_REG1: .equ   GAVIN + 0x102
-#endif // A2560U
+#endif // A2560U || A2560K
 
 #define FNX1_INT04_COM1 0x08
 
@@ -43,7 +50,7 @@ uartInterrupt:
 #ifdef HB68K08
               move.b  UDR.l,d0
 #endif
-#ifdef A2560U
+#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
               moveq.l #FNX1_INT04_COM1,d0 ; clear pending status
               move.w  d0,INT_PEND_REG1
 
