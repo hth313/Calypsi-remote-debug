@@ -1,15 +1,27 @@
 ;;; Low level exection handling WDC65816
 
+;;; UART base address
 #if defined(__TARGET_C256_FMX__)
 UART_BASE:    .equ 0xaf13f8
 #elif defined(__CALYPSI_TARGET_SYSTEM_C256__)
 UART_BASE:    .equ    0xaf18f8
 #elif defined(__CALYPSI_TARGET_SYSTEM_F256__)
 UART_BASE:    .equ    0xf01630
+#endif
+
+;;; Vectors when stored in flash
+#if defined(__CALYPSI_TARGET_SYSTEM_F256__)
               .section break, root
-              .word breakHandler
+              .word breakHandler_trampoline
+
               .section irq, root
-              .word interruptHandler
+              .word interruptHandler_trampoline
+
+              .section code
+breakHandler_trampoline:
+              jmp     (0xfee6)
+interruptHandler_trampoline:
+              jmp     (0xfeee)
 #endif
 
 UART_TRHB:    .equ    UART_BASE
