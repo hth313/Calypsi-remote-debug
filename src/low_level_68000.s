@@ -5,16 +5,15 @@ UDR:          .equ    USART_BASE + 0x2f
 
 #if defined(__CALYPSI_TARGET_SYSTEM_A2560U__)
 #define GAVIN 0xB00000
+UART_TRHB:    .equ    GAVIN + 0x28f8
+INT_PEND_REG1: .equ   GAVIN + 0x102
 #endif
 
 #if defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
 #define GAVIN 0xfec00000
-#endif
-
-#if defined(__CALYPSI_TARGET_SYSTEM_A2560U__) || defined(__CALYPSI_TARGET_SYSTEM_A2560K__)
-UART_TRHB:    .equ    GAVIN + 0x28f8
+UART_TRHB:    .equ    GAVIN + 0x23f8
 INT_PEND_REG1: .equ   GAVIN + 0x102
-#endif // A2560U || A2560K
+#endif
 
 #define FNX1_INT04_COM1 0x08
 

@@ -9,6 +9,6 @@
 */agent-U.*
 */agent-FMX.*
 agent-hb68k08*
-**/agent-a2560u*
+**/agent-a2560*
 **/native-hb68k08*
-!**/agent-a2560u*.scm
+!**/agent-a2560*.scm
